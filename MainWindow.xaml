@@ -1,0 +1,63 @@
+﻿<Window x:Class="ipset.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ipset"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="465" Width="820
+        ">
+    <Grid>
+        <Label x:Name="Label_CardName" Content="选中网卡名字" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="9" Margin="5,0,0,0" />
+        <Label x:Name="Lable_NetCard" Content="选择网卡：" HorizontalAlignment="Left" Margin="5,20,0,0" VerticalAlignment="Top" Width="70" Height="25" />
+        <ComboBox x:Name="ComboBox_NetCard" HorizontalAlignment="Left" Margin="69,20,0,0" VerticalAlignment="Top" Width="106" Height="19" SelectionChanged="ComboBox_NetCard_SelectionChanged" />
+        <Button x:Name="Button_TurnCardOnOff" Content="停用" HorizontalAlignment="Left" Margin="180,20,0,0" VerticalAlignment="Top" Width="61" Click="Button_TurnCardOnOff_Click"  />
+        <Button x:Name="Button_ChangeCardName" Content="网卡改名" HorizontalAlignment="Left" Margin="246,20,0,0" VerticalAlignment="Top" Width="61" Click="Button_ChangeCardName_Click"/>
+        <Button x:Name="Button_FindRouting" Content="查路由" HorizontalAlignment="Left" Margin="312,20,0,0" VerticalAlignment="Top" Width="61" Click="Button_FindRouting_Click"  />
+        <Button x:Name="Botton_RandomMAC" Content="随机MAC" HorizontalAlignment="Left" Margin="180,50,0,0" VerticalAlignment="Top" Width="61" Click="Botton_RandomMAC_Click"/>
+        <TextBox x:Name="TextBox_MAC" HorizontalAlignment="Left" Margin="69,50,0,0" TextWrapping="Wrap" Text="FFFFFFFFFFFF" VerticalAlignment="Top" Width="106" Height="19"/>
+        <Button x:Name="Botton_ManualMAC" Content="手动MAC" HorizontalAlignment="Left" Margin="246,50,0,0" VerticalAlignment="Top" Width="61" Click="Botton_ManualMAC_Click" />
+        <Button x:Name="Botton_DefaultMAC" Content="恢复MAC" HorizontalAlignment="Left" Margin="312,50,0,0" VerticalAlignment="Top" Width="61" Click="Botton_DefaultMAC_Click" />
+        <Label x:Name="Lable_MAC" Content="当前MAC:" HorizontalAlignment="Left" Margin="5,47,0,0" VerticalAlignment="Top" Width="70" Height="25" />
+        <Button x:Name="Botton_ManualMTU" Content="手动MTU" HorizontalAlignment="Left" Margin="180,80,0,0" VerticalAlignment="Top" Width="61" Click="Botton_ManualMTU_Click"  />
+        <TextBox x:Name="TextBox_MTU" HorizontalAlignment="Left" Margin="69,80,0,0" TextWrapping="Wrap" Text="1500" VerticalAlignment="Top" Width="106" Height="19" />
+        <Button x:Name="Botton_DefaultMTU" Content="默认MTU" HorizontalAlignment="Left" Margin="246,80,0,0" VerticalAlignment="Top" Width="61" Click="Botton_DefaultMTU_Click" />
+        <Button x:Name="Botton_Cping" Content="Cping工具" HorizontalAlignment="Left" Margin="312,80,0,0" VerticalAlignment="Top" Width="61" Click="Botton_Cping_Click"  />
+        <Label x:Name="Lable_MTU" Content="当前MTU:" HorizontalAlignment="Left" Margin="5,76,0,0" VerticalAlignment="Top" Width="70" Height="25" />
+        <CheckBox x:Name="CheckBox_DHCP" Content="自动获取IP地址：" HorizontalAlignment="Left" Margin="10,123,0,0" VerticalAlignment="Top" Checked="CheckBox_DHCP_Checked" Unchecked="CheckBox_DHCP_Unchecked" />
+        <Button x:Name="Botton_PreventIP" Content="前一次IP" HorizontalAlignment="Left" Margin="145,120,0,0" VerticalAlignment="Top" Width="61" Click="Botton_PreventIP_Click" />
+        <Button x:Name="Botton_NextIP" Content="后一次IP" HorizontalAlignment="Left" Margin="220,120,0,0" VerticalAlignment="Top" Width="61" Click="Botton_NextIP_Click" />
+        <Button x:Name="Botton_SaveFangAn" Content="保存配置方案" HorizontalAlignment="Left" Margin="295,120,0,0" VerticalAlignment="Top" Width="78" Click="Botton_SaveFangAn_Click"  />
+        <TextBox x:Name="TextBox_IP1" HorizontalAlignment="Left" Margin="69,150,0,0" TextWrapping="Wrap" Text="111.111.111.111" VerticalAlignment="Top" Width="106" Height="19"  />
+        <Label x:Name="Lable_IP1" Content="IP地址1:" HorizontalAlignment="Left" Margin="5,147,0,0" VerticalAlignment="Top" Width="70" Height="25" />
+        <TextBox x:Name="TextBox_Mask1" HorizontalAlignment="Left" Margin="69,175,0,0" TextWrapping="Wrap" Text="255.255.255.0" VerticalAlignment="Top" Width="106" Height="19"  />
+        <Label x:Name="Lable_Mask1" Content="IP掩码1:" HorizontalAlignment="Left" Margin="5,172,0,0" VerticalAlignment="Top" Width="70" Height="25" />
+        <TextBox x:Name="TextBox_GateWay" HorizontalAlignment="Left" Margin="69,200,0,0" TextWrapping="Wrap" Text="111.111.111.254" VerticalAlignment="Top" Width="106" Height="19"  />
+        <Label x:Name="Lable_GateWay" Content="IP网关:" HorizontalAlignment="Left" Margin="5,197,0,0" VerticalAlignment="Top" Width="70" Height="25" />
+        <TextBox x:Name="TextBox_DNS1" HorizontalAlignment="Left" Margin="69,235,0,0" TextWrapping="Wrap" Text="114.114.114.114" VerticalAlignment="Top" Width="106" Height="19" />
+        <Label x:Name="Lable_DNS1" Content="首选DNS:" HorizontalAlignment="Left" Margin="5,232,0,0" VerticalAlignment="Top" Width="70" Height="25" />
+        <TextBox x:Name="TextBox_DNS2" HorizontalAlignment="Left" Margin="69,260,0,0" TextWrapping="Wrap" Text="119.29.29.29" VerticalAlignment="Top" Width="106" Height="19"  />
+        <Label x:Name="Lable_DNS2" Content="备用DNS:" HorizontalAlignment="Left" Margin="5,257,0,0" VerticalAlignment="Top" Width="70" Height="25" />
+        <CheckBox x:Name="CheckBox_Enable2IP" Content="启用第二个IP:" HorizontalAlignment="Left" Margin="10,303,0,0" VerticalAlignment="Top" Checked="CheckBox_Enable2IP_Checked" Unchecked="CheckBox_Enable2IP_Unchecked" />
+        <TextBox x:Name="TextBox_IP2" HorizontalAlignment="Left" Margin="69,330,0,0" TextWrapping="Wrap" Text="222.222.222.222" VerticalAlignment="Top" Width="106" Height="19"  />
+        <Label x:Name="Lable_IP2" Content="IP地址2:" HorizontalAlignment="Left" Margin="5,327,0,0" VerticalAlignment="Top" Width="70" Height="25" />
+        <TextBox x:Name="TextBox_Mask2" HorizontalAlignment="Left" Margin="69,355,0,0" TextWrapping="Wrap" Text="255.255.255.0" VerticalAlignment="Top" Width="106" Height="19"  />
+        <Label x:Name="Lable_Mask2" Content="IP掩码2:" HorizontalAlignment="Left" Margin="5,352,0,0" VerticalAlignment="Top" Width="70" Height="25" />
+        <ListBox x:Name="ListBox_FangAn" Margin="190,150,0,0" Height="264" VerticalAlignment="Top" HorizontalAlignment="Left" Width="183" SelectionChanged="ListBox_FangAn_SelectionChanged" >
+            <ListBox.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="应用" Click="FanAn_MenuItem_Apply_Click"/>
+                    <MenuItem Header="编辑" Click="FanAn_MenuItem_Edit_Click"/>
+                    <MenuItem Header="参考" Click="FanAn_MenuItem_Refer_Click"/>
+                    <MenuItem Header="新建" Click="FanAn_MenuItem_New_Click"/>
+                    <MenuItem Header="删除" Click="FanAn_MenuItem_Delete_Click"/>
+                </ContextMenu>
+            </ListBox.ContextMenu>
+        </ListBox>
+        <Button x:Name="Botton_RefreshConfig" Content="刷新网卡信息" HorizontalAlignment="Left" Margin="10,395,0,0" VerticalAlignment="Top" Width="76" Click="Botton_RefreshConfig_Click" />
+        <Button x:Name="Botton_ApplyConfig" Content="应用当前配置" HorizontalAlignment="Left" Margin="99,395,0,0" Width="76"  Height="19" VerticalAlignment="Top" Click="Botton_ApplyConfig_Click" />
+        <Label x:Name="Label_Message" Content="调试信息:" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="9" Margin="398,0,0,0" />
+        <ListBox x:Name="ListBox_Message" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="394,20,0,0" Height="394" VerticalAlignment="Top" HorizontalAlignment="Left" Width="400">
+        </ListBox>
+    </Grid>
+</Window>
