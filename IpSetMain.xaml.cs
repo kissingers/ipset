@@ -2,20 +2,19 @@
 using myipset;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Net.NetworkInformation;
+using System.Management;
 using System.Net;
+using System.Net.NetworkInformation;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Diagnostics;
-using System.IO;
-using System.Management;
-using System.Threading;
-using System.Collections.ObjectModel;
-using System.Text.RegularExpressions;
-
 
 namespace ipset
 {
@@ -23,13 +22,10 @@ namespace ipset
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
 
-
-
     public partial class MainWindow : Window
     {
-
-        readonly ObservableCollection<string> traceMessage = new ObservableCollection<string>();
-        readonly List<string> netWorkList = new List<string>();
+        private readonly ObservableCollection<string> traceMessage = new ObservableCollection<string>();
+        private readonly List<string> netWorkList = new List<string>();
 
         public MainWindow()
         {
@@ -45,7 +41,7 @@ namespace ipset
             TextBox_Message.ScrollToEnd();
         }
 
-        public void SetColor(Color UsedColor,  bool EditEnable)
+        public void SetColor(Color UsedColor, bool EditEnable)
         {
             TextBox_IP1.Background = new SolidColorBrush(UsedColor);
             TextBox_Mask1.Background = new SolidColorBrush(UsedColor);
@@ -99,52 +95,52 @@ namespace ipset
             {
                 //显示网络适配器描述信息、名称、类型、速度、MAC 地址
                 index++;
-               AddMessage("--------------------第" + index + "个适配器信息--------------------");
-               AddMessage("网卡名字：" + adapter.Name);
-               AddMessage("网卡描述：" + adapter.Description);
-               AddMessage("网卡标识：" + adapter.Id);
-               AddMessage("网卡类型：" + adapter.NetworkInterfaceType);
-               AddMessage("点亮情况：" + adapter.OperationalStatus);
-               AddMessage("网卡地址：" + adapter.GetPhysicalAddress());
-               AddMessage("网卡速度：" + adapter.Speed / 1000 / 1000 + "MB");
+                AddMessage("--------------------第" + index + "个适配器信息--------------------");
+                AddMessage("网卡名字：" + adapter.Name);
+                AddMessage("网卡描述：" + adapter.Description);
+                AddMessage("网卡标识：" + adapter.Id);
+                AddMessage("网卡类型：" + adapter.NetworkInterfaceType);
+                AddMessage("点亮情况：" + adapter.OperationalStatus);
+                AddMessage("网卡地址：" + adapter.GetPhysicalAddress());
+                AddMessage("网卡速度：" + adapter.Speed / 1000 / 1000 + "MB");
 
                 IPInterfaceProperties ip = adapter.GetIPProperties();
 
                 if (adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
                 {
-                   AddMessage("网卡类型：有线网卡");
-                   AddMessage("自动获取：" + ip.GetIPv4Properties().IsDhcpEnabled);
-                   AddMessage("IPV4MTU：" + ip.GetIPv4Properties().Mtu);
-                   AddMessage("IPV6MTU：" + ip.GetIPv6Properties().Mtu);
+                    AddMessage("网卡类型：有线网卡");
+                    AddMessage("自动获取：" + ip.GetIPv4Properties().IsDhcpEnabled);
+                    AddMessage("IPV4MTU：" + ip.GetIPv4Properties().Mtu);
+                    AddMessage("IPV6MTU：" + ip.GetIPv6Properties().Mtu);
                 }
 
                 if (adapter.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
                 {
-                   AddMessage("网卡类型：无线网卡");
-                   AddMessage("自动获取：" + ip.GetIPv4Properties().IsDhcpEnabled);
-                   AddMessage("IPV4MTU：" + ip.GetIPv4Properties().Mtu);
-                   AddMessage("IPV6MTU：" + ip.GetIPv6Properties().Mtu);
+                    AddMessage("网卡类型：无线网卡");
+                    AddMessage("自动获取：" + ip.GetIPv4Properties().IsDhcpEnabled);
+                    AddMessage("IPV4MTU：" + ip.GetIPv4Properties().Mtu);
+                    AddMessage("IPV6MTU：" + ip.GetIPv6Properties().Mtu);
                 }
 
                 UnicastIPAddressInformationCollection netIpAdds = ip.UnicastAddresses;
                 foreach (UnicastIPAddressInformation ipadd in netIpAdds)
                 {
                     if (ipadd.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                       AddMessage("IPV4地址：" + ipadd.Address);
+                        AddMessage("IPV4地址：" + ipadd.Address);
                     if (ipadd.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
-                       AddMessage("IPV6地址：" + ipadd.Address);
+                        AddMessage("IPV6地址：" + ipadd.Address);
                 }
 
                 IPAddressCollection dnsServers = ip.DnsAddresses;
                 foreach (IPAddress dns in dnsServers)
                 {
                     if (dns.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                       AddMessage("IPV4域名：" + dns);
+                        AddMessage("IPV4域名：" + dns);
                     if (dns.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
-                       AddMessage("IPV6域名：" + dns);
+                        AddMessage("IPV6域名：" + dns);
                 }
             }
-           AddMessage("-------------------适配器信息输出结束---------------------");
+            AddMessage("-------------------适配器信息输出结束---------------------");
         }
 
         // 选择网卡下拉列表时候显示对应的网卡
@@ -153,7 +149,7 @@ namespace ipset
             if (ComboBox_NetCard.SelectedValue == null || !GetNetWork(ComboBox_NetCard.SelectedValue.ToString()))
             {
                 ListNetWork();
-                MessageBox.Show("网卡名字不正确，已重新刷新网卡信息，网卡选择可能改变了，请重新选择...");
+                MessageBox.Show("网卡名字不正确，已重新刷新网卡信息，选择的网卡可能变了，请重新选择...");
             }
 
             IpClass.NiceEnable = false;
@@ -239,18 +235,18 @@ namespace ipset
             //检查合格保存当前网卡状态，以备可以回退一次
             if (!Savelastip())
             {
-                MessageBox.Show("不能保存历史IP信息，请刷新网卡信息后再尝试");
+                MessageBox.Show("保存历史IP信息不成功，请刷新网卡信息后再尝试");
                 return false;
             }
 
             //如果是地址是自动获取的,上面已经修改为dhcp模式了,完成任务直接结束
             if (IpClass.UseDhcp)
             {
-               AddMessage("netsh interface ip set address name=\"" + IpClass.NicName + "\" source=dhcp");
-               AddMessage("netsh interface ip set dns name=\"" + IpClass.NicName + "\" source=dhcp");
+                AddMessage("netsh interface ip set address name=\"" + IpClass.NicName + "\" source=dhcp");
+                AddMessage("netsh interface ip set dns name=\"" + IpClass.NicName + "\" source=dhcp");
                 RunNetshCommand("interface ip set address name=\"" + IpClass.NicName + "\" source=dhcp");
                 RunNetshCommand("interface ip set dns name=\"" + IpClass.NicName + "\" source=dhcp");
-               AddMessage("-------------修改网卡动态获取地址结束---------------\r\n");
+                AddMessage("-------------修改网卡动态获取地址结束---------------\r\n");
                 SelectNetCard();
                 ChangeUI();
                 return true;
@@ -266,7 +262,7 @@ namespace ipset
             //不是动态则检查IP是否合法，不合法直接退出
             if (!Checkinput())
             {
-               AddMessage("-----------需要修改的IP不符合规范,更改IP不成功-----------\r\n");
+                AddMessage("-----------需要修改的IP不符合规范,更改IP不成功-----------\r\n");
                 return false;
             }
 
@@ -276,14 +272,14 @@ namespace ipset
                 //如果ip、掩码和网关都不为空,则设置ip地址和子网掩码和网关
                 if (!string.IsNullOrEmpty(IpClass.setip1) && !string.IsNullOrEmpty(IpClass.setmask1) && !string.IsNullOrEmpty(IpClass.setgw))
                 {
-                   AddMessage("netsh interface ipv4 set address \"" + IpClass.NicName + "\" static " + IpClass.setip1 + " " + IpClass.setmask1 + " " + IpClass.setgw);
+                    AddMessage("netsh interface ipv4 set address \"" + IpClass.NicName + "\" static " + IpClass.setip1 + " " + IpClass.setmask1 + " " + IpClass.setgw);
                     RunNetshCommand("interface ipv4 set address \"" + IpClass.NicName + "\" static " + IpClass.setip1 + " " + IpClass.setmask1 + " " + IpClass.setgw);
                 }
 
                 //如果ip和掩码都不为空，但是没网关，则设置ip地址和子网掩码
                 if (!string.IsNullOrEmpty(IpClass.setip1) && !string.IsNullOrEmpty(IpClass.setmask1) && string.IsNullOrEmpty(IpClass.setgw))
                 {
-                   AddMessage("netsh interface ipv4 set address \"" + IpClass.NicName + "\" static " + IpClass.setip1 + " " + IpClass.setmask1);
+                    AddMessage("netsh interface ipv4 set address \"" + IpClass.NicName + "\" static " + IpClass.setip1 + " " + IpClass.setmask1);
                     RunNetshCommand("interface ipv4 set address \"" + IpClass.NicName + "\" static " + IpClass.setip1 + " " + IpClass.setmask1);
                 }
             }
@@ -296,7 +292,7 @@ namespace ipset
                     //如果有第二个IP和掩码且不为空，则加入第二个IP和掩码
                     if ((IpClass.Use2Ip) && !string.IsNullOrEmpty(IpClass.setip2) && !string.IsNullOrEmpty(IpClass.setmask2))
                     {
-                       AddMessage("netsh interface ipv4 add address \"" + IpClass.NicName + "\" " + IpClass.setip2 + " " + IpClass.setmask2);
+                        AddMessage("netsh interface ipv4 add address \"" + IpClass.NicName + "\" " + IpClass.setip2 + " " + IpClass.setmask2);
                         RunNetshCommand("interface ipv4 add address \"" + IpClass.NicName + "\" " + IpClass.setip2 + " " + IpClass.setmask2);
                     }
                 }
@@ -307,7 +303,7 @@ namespace ipset
                 {
                     //如果有第二个IP和掩码且不为空，则加入第二个IP和掩码
 
-                   AddMessage("netsh interface ipv4 delete address \"" + IpClass.NicName + "\" " + IpClass.lastArray[6]);
+                    AddMessage("netsh interface ipv4 delete address \"" + IpClass.NicName + "\" " + IpClass.lastArray[6]);
                     RunNetshCommand("interface ipv4 delete address \"" + IpClass.NicName + "\" " + IpClass.lastArray[6]);
                 }
             }
@@ -318,23 +314,23 @@ namespace ipset
                 //如果任意一个DNS非空,那么设置DNS
                 if (!string.IsNullOrEmpty(IpClass.setdns1))
                 {
-                   AddMessage("netsh interface ipv4 set dns \"" + IpClass.NicName + "\" static " + IpClass.setdns1 + " register=primary");
+                    AddMessage("netsh interface ipv4 set dns \"" + IpClass.NicName + "\" static " + IpClass.setdns1 + " register=primary");
                     RunNetshCommand("interface ipv4 set dns \"" + IpClass.NicName + "\" static " + IpClass.setdns1 + " register=primary");
                 }
                 else
                 {
-                   AddMessage("netsh interface ipv4 delete dns \"" + IpClass.NicName + "\" all");
+                    AddMessage("netsh interface ipv4 delete dns \"" + IpClass.NicName + "\" all");
                     RunNetshCommand("interface ipv4 delete dns \"" + IpClass.NicName + "\" all");
                 }
 
                 if (!string.IsNullOrEmpty(IpClass.setdns2))
                 {
                     string DNS2Command = $"interface ipv4 add dns \"{IpClass.NicName}\" {IpClass.setdns2}";
-                   AddMessage("netsh " + DNS2Command);
+                    AddMessage("netsh " + DNS2Command);
                     RunNetshCommand(DNS2Command);
                 }
             }
-           AddMessage("---------------修改网卡结束-----------------\r\n");
+            AddMessage("---------------修改网卡结束-----------------\r\n");
             SelectNetCard();
             ChangeUI();
             return true;
@@ -345,23 +341,23 @@ namespace ipset
             // 尝试解析IP地址
             if (!IPAddress.TryParse(ip, out IPAddress address))
             {
-               AddMessage("无效的IP地址：" + ip);
+                AddMessage("无效的IP地址：" + ip);
                 return false;
             }
             // 仅接受IPv4地址
             if (address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
             {
-               AddMessage("无效的IPv4地址：" + ip);
+                AddMessage("无效的IPv4地址：" + ip);
                 return false;
             }
             // 判断第一段必须在1到223之间
             byte[] bytes = address.GetAddressBytes();
             if (bytes[0] < 1 || bytes[0] > 223)
             {
-               AddMessage("IP地址首段必须在1到223之间：" + ip);
+                AddMessage("IP地址首段必须在1到223之间：" + ip);
                 return false;
             }
-           AddMessage("这是合法的IP网关DNS地址：" + ip);
+            AddMessage("这是合法的IP网关DNS地址：" + ip);
             return true;
         }
 
@@ -371,13 +367,13 @@ namespace ipset
             // 尝试解析子网掩码
             if (!IPAddress.TryParse(mask, out IPAddress subnet))
             {
-               AddMessage("无效的网络掩码：" + mask);
+                AddMessage("无效的网络掩码：" + mask);
                 return false;
             }
             // 仅接受IPv4掩码
             if (subnet.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
             {
-               AddMessage("无效的IPv4网络掩码：" + mask);
+                AddMessage("无效的IPv4网络掩码：" + mask);
                 return false;
             }
 
@@ -386,7 +382,7 @@ namespace ipset
             uint maskValue = ((uint)bytes[0] << 24) | ((uint)bytes[1] << 16) | ((uint)bytes[2] << 8) | ((uint)bytes[3]);
             if (maskValue == 0)
             {
-               AddMessage("无效的网络掩码，掩码不能全为0：" + mask);
+                AddMessage("无效的网络掩码，掩码不能全为0：" + mask);
                 return false;
             }
             // 检查掩码连续性：从最高位开始连续为1，后面必须全为0
@@ -397,7 +393,7 @@ namespace ipset
                 {
                     if (foundZero)
                     {
-                       AddMessage("无效的网络掩码，掩码中1和0不连续：" + mask);
+                        AddMessage("无效的网络掩码，掩码中1和0不连续：" + mask);
                         return false;
                     }
                 }
@@ -406,7 +402,7 @@ namespace ipset
                     foundZero = true;
                 }
             }
-           AddMessage("这是合法的网络掩码 地址：" + mask);
+            AddMessage("这是合法的网络掩码 地址：" + mask);
             return true;
         }
 
@@ -576,7 +572,7 @@ namespace ipset
                 Button_TurnCardOnOff.Content = "启用";
                 Button_TurnCardOnOff.Background = new SolidColorBrush(Color.FromRgb(128, 0, 0));
             }
-          
+
             if (!IpClass.NicConnect)          //如果网卡没联网,输入界面变粉色,且不可编辑
             {
                 SetColor(Color.FromRgb(255, 128, 128), false);
@@ -608,8 +604,6 @@ namespace ipset
                 Lable_IP2.Visibility = Visibility.Hidden;
                 Lable_Mask2.Visibility = Visibility.Hidden;
             }
-
-            IpClass.HistoryCurrentIndex = -1;
         }
 
         private void RunNetshCommand(string command)
@@ -650,7 +644,6 @@ namespace ipset
                 return;
             }
 
-
             using (StreamReader sr = File.OpenText("config.cfg"))
             {
                 IpClass.configfile = sr.ReadToEnd();
@@ -668,14 +661,14 @@ namespace ipset
                 {
                     NetConfig nc = new NetConfig(config);
                     IpClass.netConfigDict.Add(nc.Name, nc);
-                   AddMessage($"========== 方案:{nc.Name} ==========");
-                   AddMessage($"IP地址\t\t{(nc.IP1 == "" ? "无" : nc.IP1)}");
-                   AddMessage($"IP掩码\t\t{(nc.Mask1 != "" ? nc.Mask1 : "无")}");
-                   AddMessage($"IP网关\t\t{(nc.Gateway != "" ? nc.Gateway : "无")}");
-                   AddMessage($"首选DNS\t\t{(nc.DNS1 != "" ? nc.DNS1 : "无")}");
-                   AddMessage($"备选DNS\t\t{(nc.DNS2 != "" ? nc.DNS2 : "无")}");
-                   AddMessage($"IP地址2\t\t{(nc.IP2 != "" ? nc.IP2 : "无")}");
-                   AddMessage($"IP掩码2\t\t{(nc.Mask2 != "" ? nc.Mask2 : "无")}");
+                    AddMessage($"========== 方案:{nc.Name} ==========");
+                    AddMessage($"IP地址:     {(nc.IP1 == "" ? "无" : nc.IP1)}");
+                    AddMessage($"IP掩码:     {(nc.Mask1 != "" ? nc.Mask1 : "无")}");
+                    AddMessage($"IP网关:     {(nc.Gateway != "" ? nc.Gateway : "无")}");
+                    AddMessage($"首选DNS: {(nc.DNS1 != "" ? nc.DNS1 : "无")}");
+                    AddMessage($"备选DNS: {(nc.DNS2 != "" ? nc.DNS2 : "无")}");
+                    AddMessage($"IP地址2:    {(nc.IP2 != "" ? nc.IP2 : "无")}");
+                    AddMessage($"IP掩码2:    {(nc.Mask2 != "" ? nc.Mask2 : "无")}");
                 }
             }
             ListBox_FangAn.ItemsSource = IpClass.netConfigDict.Keys;
@@ -689,17 +682,16 @@ namespace ipset
             foreach (NetConfig config in IpClass.netConfigDict.Values)
             {
                 string saveString = config.Writebackfile();
-               AddMessage("写入\t\t" + saveString);
+                AddMessage("写入\t\t" + saveString);
                 sw.WriteLine(saveString);
             }
             sw.Close();
-           AddMessage("已保存配置方案");
+            AddMessage("已保存配置方案");
         }
 
         private void DisplayHistoryRecord(string[] record)
         {
             CheckBox_DHCP.IsChecked = false;
-            SetColor(Colors.Yellow, true);
             TextBox_IP1.Text = record[1];
             TextBox_Mask1.Text = record[2];
             TextBox_GateWay.Text = record[3];
@@ -725,11 +717,12 @@ namespace ipset
                 Lable_Mask2.Visibility = Visibility.Hidden;
                 CheckBox_Enable2IP.IsChecked = false;
             }
+            SetColor(Colors.Yellow, true);
         }
 
         public bool Savelastip()
         {
-            if (ComboBox_NetCard.SelectedValue == null)
+            if (ComboBox_NetCard.SelectedValue == null || !GetNetWork(ComboBox_NetCard.SelectedValue.ToString()))
             {
                 return false;
             }
@@ -761,13 +754,14 @@ namespace ipset
                             IpClass.lastUse2Ip = false;
                             IpClass.lastArray[1] = ipadd.Address.ToString();
                             IpClass.lastArray[2] = ipadd.IPv4Mask.ToString();
+                            IpClass.lastArray[8] = "false";
                         }
                         if (index1 == 2)
                         {
                             IpClass.lastUse2Ip = true;
                             IpClass.lastArray[6] = ipadd.Address.ToString();
                             IpClass.lastArray[7] = ipadd.IPv4Mask.ToString();
-                            IpClass.lastArray[8] = IpClass.Use2Ip ? "true" : "false";
+                            IpClass.lastArray[8] = "true";
                         }
                     }
                 }
@@ -793,8 +787,6 @@ namespace ipset
             string[] currentRecord = new string[IpClass.lastArray.Length];
             Array.Copy(IpClass.lastArray, currentRecord, IpClass.lastArray.Length);
             IpClass.HistoryRecords.Add(currentRecord);
-            // 重置历史记录索引为默认 –1
-            IpClass.HistoryCurrentIndex = -1;
             return true;
         }
 
@@ -834,10 +826,10 @@ namespace ipset
                 IpClass.NiceEnable = false;
                 return true;
             }
-            catch 
+            catch
             {
                 IpClass.NiceEnable = true;
-                return false; 
+                return false;
             }
         }
 
@@ -850,10 +842,10 @@ namespace ipset
                 IpClass.NiceEnable = true;
                 return true;
             }
-            catch 
+            catch
             {
                 IpClass.NiceEnable = false;
-                return false; 
+                return false;
             }
         }
 
@@ -893,12 +885,12 @@ namespace ipset
                 .OpenSubKey(DeviceId, true);
             if (string.IsNullOrEmpty(newMac))
             {
-                NetaddaptRegistry.DeleteValue("NetworkAddress");
+                try { NetaddaptRegistry.DeleteValue("NetworkAddress"); } catch (Exception) { }
             }
             else
             {
                 NetaddaptRegistry.SetValue("NetworkAddress", newMac);
-                MessageBox.Show(newMac);
+                AddMessage("随机生产的MAC地址为: " + newMac);
             }
             NetaddaptRegistry.Close();
 
@@ -907,7 +899,7 @@ namespace ipset
             {
                 DisableNetWork(NetWork(cardName));
                 EnableNetWork(NetWork(cardName));
-                await Task.Delay(12000);     //等待12秒差不多可以重启网卡,并刷新DHCP的IP 
+                await Task.Delay(12000);     //等待12秒差不多可以重启网卡,并刷新DHCP的IP
             }
         }
 
@@ -960,7 +952,7 @@ namespace ipset
         private void Button_ChangeCardName_Click(object sender, RoutedEventArgs e)
         {
             string ChangeNameCommand = $"interface set interface name=\"{IpClass.NicName}\" newname=\"{ComboBox_NetCard.Text}\"";
-           AddMessage("netsh " + ChangeNameCommand);
+            AddMessage("netsh " + ChangeNameCommand);
             RunNetshCommand(ChangeNameCommand);
             ListNetWork();
         }
@@ -974,15 +966,15 @@ namespace ipset
             foreach (ManagementObject mor in routeColl.Cast<ManagementObject>())
             {
                 string routemessage = mor["Destination"] + "\t";
-                if (mor["Destination"].ToString().Length < 8)
+                if (mor["Destination"].ToString().Length < 9)
                     routemessage += "\t";
 
                 routemessage += mor["Mask"] + "\t";
-                if (mor["Mask"].ToString().Length < 8)
+                if (mor["Mask"].ToString().Length < 9)
                     routemessage += "\t";
 
                 routemessage += mor["NextHop"] + "\t";
-                if (mor["NextHop"].ToString().Length < 8)
+                if (mor["NextHop"].ToString().Length < 9)
                     routemessage += "\t";
 
                 routemessage += mor["InterfaceIndex"] + "\t" + mor["Metric1"];
@@ -990,7 +982,6 @@ namespace ipset
             }
             AddMessage("-------------------------------------------------------");
         }
-
 
         private async void Botton_RandomMAC_Click(object sender, RoutedEventArgs e)
         {
@@ -1037,12 +1028,12 @@ namespace ipset
                 {
                     // 设置 IPv4 MTU
                     string ipv4Command = $"interface ipv4 set subinterface \"{IpClass.NicName}\" mtu={mtuValue} store=persistent";
-                   AddMessage("netsh " + ipv4Command);
+                    AddMessage("netsh " + ipv4Command);
                     RunNetshCommand(ipv4Command);
 
                     // 设置 IPv6 MTU
                     string ipv6Command = $"interface ipv6 set subinterface \"{IpClass.NicName}\" mtu={mtuValue} store=persistent";
-                   AddMessage("netsh " + ipv6Command);
+                    AddMessage("netsh " + ipv6Command);
                     RunNetshCommand(ipv6Command);
                     SelectNetCard();
                     ChangeUI();
@@ -1061,12 +1052,12 @@ namespace ipset
         private void Botton_DefaultMTU_Click(object sender, RoutedEventArgs e)
         {
             string ipv4Command = $"interface ipv4 set subinterface \"{IpClass.NicName}\" mtu=1500 store=persistent";
-           AddMessage("netsh " + ipv4Command);
+            AddMessage("netsh " + ipv4Command);
             RunNetshCommand(ipv4Command);
 
             // 设置 IPv6 MTU
             string ipv6Command = $"interface ipv6 set subinterface \"{IpClass.NicName}\" mtu=1500 store=persistent";
-           AddMessage("netsh " + ipv6Command);
+            AddMessage("netsh " + ipv6Command);
             RunNetshCommand(ipv6Command);
             SelectNetCard();
             ChangeUI();
@@ -1081,9 +1072,7 @@ namespace ipset
             };
             cpingWindow.TextBoxCping.Text = TextBox_IP1.Text;
             cpingWindow.ShowDialog();
-
         }
-
 
         private void CheckBox_DHCP_Checked(object sender, RoutedEventArgs e)
         {
@@ -1113,6 +1102,11 @@ namespace ipset
         {
             SelectNetCard();
             ChangeUI();
+            if (IpClass.HistoryRecords.Count > 0)
+            {
+                IpClass.HistoryCurrentIndex = IpClass.HistoryRecords.Count - 1; //手动刷新时候更改历史为最新
+                AddMessage("已切最近的历史记录，序号: " + IpClass.HistoryCurrentIndex);
+            }
         }
 
         private void Botton_ApplyConfig_Click(object sender, RoutedEventArgs e)
@@ -1127,24 +1121,18 @@ namespace ipset
                 MessageBox.Show("还没有历史记录");
                 return;
             }
-            // 如果处于默认状态，则设置为最老的历史记录
-            if (IpClass.HistoryCurrentIndex == -1)
-            {
-                IpClass.HistoryCurrentIndex = IpClass.HistoryRecords.Count - 1;
-                DisplayHistoryRecord(IpClass.HistoryRecords[IpClass.HistoryCurrentIndex]);
-               AddMessage("显示前一条历史记录");
-            }
-            else if (IpClass.HistoryCurrentIndex > 0)
+            if (IpClass.HistoryCurrentIndex > 0)
             {
                 IpClass.HistoryCurrentIndex--;
                 DisplayHistoryRecord(IpClass.HistoryRecords[IpClass.HistoryCurrentIndex]);
-               AddMessage("显示前一条历史记录");
+                AddMessage("显示前一条历史记录，序号: " + IpClass.HistoryCurrentIndex);
             }
             else
             {
+                DisplayHistoryRecord(IpClass.HistoryRecords[0]);
+                AddMessage("显示前一条历史记录，序号: " + IpClass.HistoryCurrentIndex);
                 MessageBox.Show("没有更多历史记录了");
             }
-
         }
 
         private void Botton_NextIP_Click(object sender, RoutedEventArgs e)
@@ -1154,27 +1142,18 @@ namespace ipset
                 MessageBox.Show("还没有历史记录");
                 return;
             }
-            // 如果当前为默认状态，则提示已经是最新实际IP状态
-            if (IpClass.HistoryCurrentIndex == -1)
-            {
-                MessageBox.Show("已是实际IP状态");
-            }
-            else if (IpClass.HistoryCurrentIndex < IpClass.HistoryRecords.Count - 1)
+            if (IpClass.HistoryCurrentIndex < IpClass.HistoryRecords.Count - 1)
             {
                 IpClass.HistoryCurrentIndex++;
                 DisplayHistoryRecord(IpClass.HistoryRecords[IpClass.HistoryCurrentIndex]);
-               AddMessage("显示后一条历史记录");
+                AddMessage("显示后一条历史记录，序号: " + IpClass.HistoryCurrentIndex);
             }
-            else if (IpClass.HistoryCurrentIndex == IpClass.HistoryRecords.Count - 1)
+            else
             {
-                // 已经到最新历史记录，再点击则刷新为当前实际IP状态
-                IpClass.HistoryCurrentIndex = -1;  // 恢复到默认状态
-                SelectNetCard();
-                ChangeUI();
-               AddMessage("已刷新到当前实际IP状态");
-                MessageBox.Show("已是实际IP状态");
+                DisplayHistoryRecord(IpClass.HistoryRecords[IpClass.HistoryCurrentIndex]);
+                AddMessage("已是最近的历史记录，序号: " + IpClass.HistoryCurrentIndex);
+                MessageBox.Show("已是最近的历史记录，要显示当前IP，请点击刷新网卡信息");
             }
-
         }
 
         // Add a private field to store the last selected net card name
@@ -1201,9 +1180,9 @@ namespace ipset
                 AddMessage("========== 请参考方案:" + name + "的配置 ==========");
                 if (!string.IsNullOrEmpty(config.IP1)) AddMessage("IP1 地址\t\t" + config.IP1);
                 if (!string.IsNullOrEmpty(config.Mask1)) AddMessage("IP1 掩码\t\t" + config.Mask1);
-                if (!string.IsNullOrEmpty(config.Gateway)) AddMessage("网关地址 \t\t" + config.Gateway);
-                if (!string.IsNullOrEmpty(config.DNS1)) AddMessage("DNS1地址\t\t" + config.DNS1);
-                if (!string.IsNullOrEmpty(config.DNS2)) AddMessage("DNS2地址\t\t" + config.DNS2);
+                if (!string.IsNullOrEmpty(config.Gateway)) AddMessage("网关地址\t" + config.Gateway);
+                if (!string.IsNullOrEmpty(config.DNS1)) AddMessage("DNS1地址\t" + config.DNS1);
+                if (!string.IsNullOrEmpty(config.DNS2)) AddMessage("DNS2地址\t" + config.DNS2);
                 if (!string.IsNullOrEmpty(config.IP2)) AddMessage("IP2 地址\t\t" + config.IP2);
                 if (!string.IsNullOrEmpty(config.Mask2)) AddMessage("IP2 掩码\t\t" + config.Mask2);
             }
@@ -1243,18 +1222,18 @@ namespace ipset
             string name = ListBox_FangAn.SelectedItem.ToString();
             NetConfig config = IpClass.netConfigDict[name];
             AddMessage("已选择" + config.Name + "\r\n");
-            IpClass.UseDhcp = false;
+            CheckBox_DHCP.IsChecked = false;
             TextBox_IP1.Text = config.IP1;
             TextBox_Mask1.Text = config.Mask1;
             TextBox_GateWay.Text = config.Gateway;
             TextBox_DNS1.Text = config.DNS1;
             TextBox_DNS2.Text = config.DNS2;
+            if (config.IP2 != "" && config.Mask2 != "")
+                CheckBox_Enable2IP.IsChecked = true;
+            else
+                CheckBox_Enable2IP.IsChecked = false;
             TextBox_IP2.Text = config.IP2;
             TextBox_Mask2.Text = config.Mask2;
-            if (!string.IsNullOrEmpty(TextBox_IP2.Text) && !string.IsNullOrEmpty(TextBox_Mask2.Text))
-                IpClass.Use2Ip = true;
-            else
-                IpClass.Use2Ip = false;
 
             SetNetworkAdapter();
         }
@@ -1306,7 +1285,6 @@ namespace ipset
             string name = ListBox_FangAn.SelectedItem.ToString();
             NetConfig config = IpClass.netConfigDict[name];
             CheckBox_DHCP.IsChecked = false;
-            SetColor(Colors.Yellow, true);  //要写在后面，因为CheckBox_DHCP.IsChecked会触发ChangeUI()   
             TextBox_IP1.Text = config.IP1;
             TextBox_Mask1.Text = config.Mask1;
             TextBox_GateWay.Text = config.Gateway;
@@ -1314,6 +1292,11 @@ namespace ipset
             TextBox_DNS2.Text = config.DNS2;
             TextBox_IP2.Text = config.IP2;
             TextBox_Mask2.Text = config.Mask2;
+            if (config.IP2 != "" && config.Mask2 != "")
+                CheckBox_Enable2IP.IsChecked = true;
+            else
+                CheckBox_Enable2IP.IsChecked = false;
+            SetColor(Colors.Yellow, true);  //要写在后面，因为CheckBox_DHCP.IsChecked 和 CheckBox_Enable2IP 会触发ChangeUI()
         }
 
         private void FanAn_MenuItem_New_Click(object sender, EventArgs e)
@@ -1342,7 +1325,6 @@ namespace ipset
             }
         }
 
-
         private void FanAn_MenuItem_Delete_Click(object sender, EventArgs e)
         {
             if (ListBox_FangAn.SelectedItem == null)
@@ -1356,6 +1338,5 @@ namespace ipset
                 ReadConfig();
             }
         }
-
     }
 }

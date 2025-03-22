@@ -1,7 +1,9 @@
-﻿using ipset;
+﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -11,10 +13,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Threading;
-using System.Collections.ObjectModel;
-using Microsoft.Win32;
-using System.IO;
 
 namespace myipset
 {
@@ -29,14 +27,9 @@ namespace myipset
         public CPing()
         {
             InitializeComponent();
-            // 从主窗口取当前IP1文本自动填入
-            var mainWindow = (MainWindow)Application.Current.MainWindow;
-            TextBoxCping.Text = mainWindow.TextBox_IP1.Text;
-            // 使用默认前缀初始化表格，确保左侧固定显示0-255
             InitPingResults("0.0.0");
             ItemsControlCping.ItemsSource = PingResults;
         }
-
 
         // 新的初始化方法，根据传入的 prefix 构造完整 IP 与显示值
         private void InitPingResults(string prefix)
@@ -48,8 +41,9 @@ namespace myipset
                 {
                     DisplayIP = i.ToString(),
                     FullIP = $"{prefix}.{i}",
+                    MAC = "",
                     Color = Brushes.LightGray,
-                    ToolTip = ""
+                    ToolTip = null
                 });
             }
         }
@@ -106,7 +100,6 @@ namespace myipset
         private async void ButtonStartPing_Click(object sender, RoutedEventArgs e)
         {
             _cts = new CancellationTokenSource();
-            DataGridMAC.ItemsSource = null; // 清空MAC列表
 
             // 解析基准IP，即TextBoxCping中填写的IP
             string ipText = TextBoxCping.Text.Trim();
@@ -124,9 +117,10 @@ namespace myipset
 
             // 获取前三个octet形成 /24 网段前缀
             string prefix = $"{parts[0]}.{parts[1]}.{parts[2]}";
-            // 使用前缀初始化PingResults（左侧显示最后一位，右侧保存完整IP）
+            // 使用前缀初始化PingResults
             InitPingResults(prefix);
-            ItemsControlCping.ItemsSource = PingResults;
+            // 清空MAC列表
+            DataGridMAC.ItemsSource = null;
 
             bool sameNetwork = false;
             var localAddresses = GetLocalIPv4Addresses();
@@ -143,25 +137,17 @@ namespace myipset
             ButtonStartPing.Content = "正在群ping...";
             ButtonStartPing.IsEnabled = false;
 
-
-            // 群ping共256个地址，分批执行（8批，每批32个）
-            List<Task> tasks = new List<Task>();
-            for (int batch = 0; batch < 8; batch++)
+            // 群ping共256个地址，分批执行（4批，每批64个）
+            for (int batch = 0; batch < 4; batch++)
             {
-                for (int i = 0; i < 32; i++)
+                List<Task> tasks = new List<Task>();
+                for (int i = 0; i < 64; i++)
                 {
-                    int ipSuffix = batch * 32 + i;
+                    int ipSuffix = batch * 64 + i;
                     string targetIp = $"{prefix}.{ipSuffix}";
-                    tasks.Add(PingAndUpdateUI(targetIp, ipSuffix, sameNetwork, _cts.Token));
+                    tasks.Add(PingAndUpdateUI(targetIp, ipSuffix, _cts.Token));
                 }
-            }
-            try
-            {
-                await Task.WhenAll(tasks);
-            }
-            catch (OperationCanceledException)
-            {
-                return;
+                try { await Task.WhenAll(tasks); } catch (OperationCanceledException) { return; }
             }
 
             // 任务全部完成后，根据是否同网段分别处理
@@ -175,57 +161,39 @@ namespace myipset
                     {
                         int lastOctet = int.Parse(entry.Key.Split('.')[3]);
                         var pr = PingResults[lastOctet];
+                        pr.MAC = GetMacAddress(pr.FullIP);
                         // 若该单元格仍是默认背景（未在线响应），则更新为紫色，并补充 MAC 信息
                         if (pr.Color == Brushes.LightGray)
                         {
-                            pr.Color = Brushes.Purple;
-                            pr.ToolTip = "MAC:" + entry.Value;
-                            pr.MAC = entry.Value;
-                        }
-                        // 如果在线（颜色不为默认或紫色），则仅更新 MAC 信息
-                        else if (pr.Color != Brushes.Purple)
-                        {
-                            pr.MAC = entry.Value;
+                            pr.Color = Brushes.Fuchsia;
+                            pr.ToolTip = "禁ping，可获取到MAC";
                         }
                     }
                 }
-                // 更新右侧MAC列表，仅显示MAC不为空的记录
-                var macList = PingResults.Where(p => !string.IsNullOrEmpty(p.MAC)).ToList();
-                DataGridMAC.ItemsSource = macList;
+                // 同网段更新MAC不为空的记录
+                DataGridMAC.ItemsSource = PingResults.Where(p => !string.IsNullOrEmpty(p.MAC)).ToList();
             }
-            else
+            else //跨网段更新不超时的IP列表
             {
-                // 不在同网段时，右侧表格只显示IP部分，因此将MAC置空
-                DataGridMAC.ItemsSource = PingResults.Select(p => new PingResult { FullIP = p.FullIP, MAC = "" }).ToList();
-
+                DataGridMAC.ItemsSource = PingResults.Where(p => p.ToolTip != null).ToList();
             }
-
-
+            ItemsControlCping.ItemsSource = PingResults;    //必须加在最后,不然刷新不会显示数据
             ButtonStartPing.Content = "开始群ping";
             ButtonStartPing.IsEnabled = true;
         }
 
-        private async Task PingAndUpdateUI(string targetIp, int ipSuffix, bool sameNetwork, CancellationToken token)
+        private async Task PingAndUpdateUI(string targetIp, int ipSuffix, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
 
-            Ping pingSender = new Ping();
             PingReply reply = null;
-            try
-            {
-                reply = await pingSender.SendPingAsync(targetIp, 1200);
-            }
-            catch
-            {
-            }
+            Ping pingSender = new Ping();
+            try { reply = await pingSender.SendPingAsync(targetIp, 1500); } catch { }
 
-            Color cellColor = Colors.LightGray;
-            bool online = false;
-            long delay = 0;
             if (reply != null && reply.Status == IPStatus.Success)
             {
-                online = true;
-                delay = reply.RoundtripTime;
+                long delay = reply.RoundtripTime;
+                Color cellColor;
                 if (delay < 10)
                     cellColor = Colors.Lime;
                 else if (delay < 100)
@@ -234,19 +202,9 @@ namespace myipset
                     cellColor = Colors.Orange;
                 else
                     cellColor = Colors.OrangeRed;
-            }
 
-            if (!token.IsCancellationRequested)
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    PingResults[ipSuffix].Color = new SolidColorBrush(cellColor);
-                    PingResults[ipSuffix].ToolTip = online ? $"{delay} ms" : "ping超时";
-                    if (online && sameNetwork)
-                    {
-                        PingResults[ipSuffix].MAC = GetMacAddress(targetIp);
-                    }
-                });
+                PingResults[ipSuffix].Color = new SolidColorBrush(cellColor);
+                PingResults[ipSuffix].ToolTip = $"{delay} ms";
             }
         }
 
@@ -275,7 +233,7 @@ namespace myipset
                             {
                                 string ip = tokens[0];
                                 string mac = tokens[1].Replace('-', ':').ToUpper();
-                                if (mac == "FF:FF:FF:FF:FF:FF")
+                                if (mac == "FF:FF:FF:FF:FF:FF" || mac == "00:00:00:00:00:00")
                                     continue;
                                 entries[ip] = mac;
                             }
@@ -326,5 +284,4 @@ namespace myipset
         public Brush Color { get; set; }
         public string ToolTip { get; set; }
     }
-
 }

@@ -7,7 +7,7 @@ namespace myipset
     public static class IpClass
     {
         public static List<string[]> HistoryRecords = new List<string[]>();
-        public static int HistoryCurrentIndex = -1;
+        public static int HistoryCurrentIndex = 0;
 
         public static bool UseDhcp = false;
         public static bool Use2Ip = false;
