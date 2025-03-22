@@ -5,27 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Management;
 using System.Threading;
 using System.Collections.ObjectModel;
-using Microsoft.SqlServer.Server;
-using System.Net.Mail;
 using System.Text.RegularExpressions;
-using System.Security.Cryptography;
 
 
 namespace ipset
@@ -45,21 +34,15 @@ namespace ipset
         public MainWindow()
         {
             InitializeComponent();
-            ListBox_Message.ItemsSource = traceMessage;
-            ComboBox_NetCard.ItemsSource = netWorkList;
             ReadConfig();
             ShowAdapterInfo();
             ListNetWork();
-
         }
 
         public void AddMessage(string message)
         {
-            traceMessage.Add(message);
-
-            ListBox_Message.ScrollIntoView(ListBox_Message.Items[ListBox_Message.Items.Count - 1]);
-            ListBox_Message.SelectedIndex = ListBox_Message.Items.Count - 1;
-            ListBox_Message.TabIndex = ListBox_Message.Items.Count - 1;
+            TextBox_Message.AppendText(message + Environment.NewLine);
+            TextBox_Message.ScrollToEnd();
         }
 
         public void SetColor(Color UsedColor,  bool EditEnable)
@@ -83,6 +66,7 @@ namespace ipset
         // 网卡列表,这个方法只显示真的的物理网卡列表
         public void ListNetWork()
         {
+            ComboBox_NetCard.ItemsSource = "";
             netWorkList.Clear();
             string qry = "SELECT * FROM MSFT_NetAdapter WHERE Virtual=False";
             ManagementScope scope = new ManagementScope(@"\\.\ROOT\StandardCimv2");
@@ -100,6 +84,7 @@ namespace ipset
                 if (ConnectState == 1)    //网卡连接状态0未知  1已连接 2断开
                     IpClass.NicDefaultName = mo["Name"]?.ToString();    //选中最后一个点亮的网卡
             }
+            ComboBox_NetCard.ItemsSource = netWorkList;
             ComboBox_NetCard.SelectedItem = IpClass.NicDefaultName;    //默认选取预定义网卡,最后点亮的物理网卡匹配优先,如果都没有,就默认第一个.
         }
 
@@ -165,10 +150,10 @@ namespace ipset
         // 选择网卡下拉列表时候显示对应的网卡
         public void SelectNetCard()
         {
-            if (ComboBox_NetCard.SelectedValue == null)
+            if (ComboBox_NetCard.SelectedValue == null || !GetNetWork(ComboBox_NetCard.SelectedValue.ToString()))
             {
-                MessageBox.Show("请选择网卡下拉列表重新刷新，不存在网卡名: " + ComboBox_NetCard.Text);
-                return;
+                ListNetWork();
+                MessageBox.Show("网卡名字不正确，已重新刷新网卡信息，网卡选择可能改变了，请重新选择...");
             }
 
             IpClass.NiceEnable = false;
@@ -252,7 +237,11 @@ namespace ipset
         public bool SetNetworkAdapter()
         {
             //检查合格保存当前网卡状态，以备可以回退一次
-            Savelastip();
+            if (!Savelastip())
+            {
+                MessageBox.Show("不能保存历史IP信息，请刷新网卡信息后再尝试");
+                return false;
+            }
 
             //如果是地址是自动获取的,上面已经修改为dhcp模式了,完成任务直接结束
             if (IpClass.UseDhcp)
@@ -738,8 +727,13 @@ namespace ipset
             }
         }
 
-        public void Savelastip()
+        public bool Savelastip()
         {
+            if (ComboBox_NetCard.SelectedValue == null)
+            {
+                return false;
+            }
+
             IpClass.lastUseDhcp = false;
             IpClass.lastUse2Ip = false;
 
@@ -801,6 +795,7 @@ namespace ipset
             IpClass.HistoryRecords.Add(currentRecord);
             // 重置历史记录索引为默认 –1
             IpClass.HistoryCurrentIndex = -1;
+            return true;
         }
 
         // 生成随机MAC地址
@@ -1079,8 +1074,16 @@ namespace ipset
 
         private void Botton_Cping_Click(object sender, RoutedEventArgs e)
         {
+            CPing cpingWindow = new CPing
+            {
+                Owner = this,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
+            };
+            cpingWindow.TextBoxCping.Text = TextBox_IP1.Text;
+            cpingWindow.ShowDialog();
 
         }
+
 
         private void CheckBox_DHCP_Checked(object sender, RoutedEventArgs e)
         {
@@ -1174,8 +1177,17 @@ namespace ipset
 
         }
 
+        // Add a private field to store the last selected net card name
+        private string _lastNetCardSelection = string.Empty;
+
+        // Modify the ComboBox_NetCard_SelectionChanged event handler
         private void ComboBox_NetCard_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            string newSelection = ComboBox_NetCard.SelectedItem as string;
+            if (string.IsNullOrEmpty(newSelection) || newSelection == _lastNetCardSelection)
+                return;
+
+            _lastNetCardSelection = newSelection;
             SelectNetCard();
             ChangeUI();
         }

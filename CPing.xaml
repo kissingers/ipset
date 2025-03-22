@@ -1,12 +1,76 @@
-﻿<Window x:Class="ipset.CPing"
+﻿<Window x:Class="myipset.CPing"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ipset"
-        mc:Ignorable="d"
-        Title="CPing" Height="450" Width="800">
+        Title="群Ping工具" Height="600" Width="800" WindowStartupLocation="CenterScreen">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="300"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 顶部：输入IP和开始按钮,色标和保存IP和MAC配置 -->
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" Margin="5">
+            <Button x:Name="ButtonStartPing" Content="开始群ping" Width="100" Click="ButtonStartPing_Click" RenderTransformOrigin="44.176,113.031" Margin="5,2,5,2"/>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="" Width="20"/>
+            </StackPanel>
+            <TextBox x:Name="TextBoxCping" Width="110" Height="20"/>
+
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="" Width="10"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="&lt;10ms" Background="Lime" Width="50" TextAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="&lt;100ms" Background="Yellow" Width="50" TextAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="&lt;1秒" Background="Orange" Width="50" TextAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text="&gt;1秒" Background="OrangeRed" Width="50" TextAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text=" 禁ping" Background="Purple" Width="50" TextAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Text=""  Width="20"/>
+            </StackPanel>
+            <Button x:Name="ButtonSaveMac" Content="保存IP/MAC表" Width="122" Click="ButtonSaveMac_Click"/>
+        </StackPanel>
+
+        <!-- 左侧：16×16 IP 网格 -->
+        <ItemsControl x:Name="ItemsControlCping" Grid.Row="1" Grid.Column="0" Margin="5">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Rows="16" Columns="16"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="Black" BorderThickness="0.5" Margin="1"
+                  Background="{Binding Color}" ToolTip="{Binding ToolTip}">
+                        <TextBlock Text="{Binding DisplayIP}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- 右侧：图例、MAC列表、保存按钮 -->
+        <StackPanel Grid.Row="1" Grid.Column="1" Margin="5">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10"/>
+            <!-- DataGrid 显示在线IP与MAC -->
+            <DataGrid x:Name="DataGridMAC" AutoGenerateColumns="False" Height="503" Margin="0,0,0,10">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="IP" Binding="{Binding FullIP}" Width="*" />
+                    <DataGridTextColumn Header="MAC" Binding="{Binding MAC}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
     </Grid>
 </Window>

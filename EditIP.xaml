@@ -1,7 +1,8 @@
 ﻿<Window x:Class="ipset.EditSchemeWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="编辑方案" Height="500" Width="300">
+        Title="编辑IP方案" Height="500" Width="300" WindowStartupLocation="CenterScreen">
+
     <Grid>
         <StackPanel Margin="10">
             <TextBlock Text="方案名称" Margin="0,0,0,5"/>

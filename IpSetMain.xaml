@@ -5,12 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ipset"
         mc:Ignorable="d"
-        Title="MainWindow" Height="465" Width="820
-        ">
+        Title="IP修改器" Height="465" Width="820
+        " WindowStartupLocation="CenterScreen">
     <Grid>
         <Label x:Name="Label_CardName" Content="选中网卡名字" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="9" Margin="5,0,0,0" />
         <Label x:Name="Lable_NetCard" Content="选择网卡：" HorizontalAlignment="Left" Margin="5,20,0,0" VerticalAlignment="Top" Width="70" Height="25" />
-        <ComboBox x:Name="ComboBox_NetCard" HorizontalAlignment="Left" Margin="69,20,0,0" VerticalAlignment="Top" Width="106" Height="19" SelectionChanged="ComboBox_NetCard_SelectionChanged" />
+        <ComboBox x:Name="ComboBox_NetCard" HorizontalAlignment="Left" Margin="69,20,0,0" VerticalAlignment="Top" Width="106" Height="19" IsEditable="True" SelectionChanged="ComboBox_NetCard_SelectionChanged" />
         <Button x:Name="Button_TurnCardOnOff" Content="停用" HorizontalAlignment="Left" Margin="180,20,0,0" VerticalAlignment="Top" Width="61" Click="Button_TurnCardOnOff_Click"  />
         <Button x:Name="Button_ChangeCardName" Content="网卡改名" HorizontalAlignment="Left" Margin="246,20,0,0" VerticalAlignment="Top" Width="61" Click="Button_ChangeCardName_Click"/>
         <Button x:Name="Button_FindRouting" Content="查路由" HorizontalAlignment="Left" Margin="312,20,0,0" VerticalAlignment="Top" Width="61" Click="Button_FindRouting_Click"  />
@@ -57,7 +57,13 @@
         <Button x:Name="Botton_RefreshConfig" Content="刷新网卡信息" HorizontalAlignment="Left" Margin="10,395,0,0" VerticalAlignment="Top" Width="76" Click="Botton_RefreshConfig_Click" />
         <Button x:Name="Botton_ApplyConfig" Content="应用当前配置" HorizontalAlignment="Left" Margin="99,395,0,0" Width="76"  Height="19" VerticalAlignment="Top" Click="Botton_ApplyConfig_Click" />
         <Label x:Name="Label_Message" Content="调试信息:" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="9" Margin="398,0,0,0" />
-        <ListBox x:Name="ListBox_Message" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="394,20,0,0" Height="394" VerticalAlignment="Top" HorizontalAlignment="Left" Width="400">
-        </ListBox>
+
+        <TextBox x:Name="TextBox_Message"
+                 IsReadOnly="True"
+                 VerticalScrollBarVisibility="Auto"
+
+          Margin="394,20,0,0" Height="394" VerticalAlignment="Top" HorizontalAlignment="Left" Width="400">
+        </TextBox>
+
     </Grid>
 </Window>

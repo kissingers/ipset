@@ -63,11 +63,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="EditSchemeWindow.xaml">
+    <Page Include="EditIP.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="IpSetMain.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -75,12 +75,12 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="EditSchemeWindow.xaml.cs">
-      <DependentUpon>EditSchemeWindow.xaml</DependentUpon>
+    <Compile Include="EditIP.xaml.cs">
+      <DependentUpon>EditIP.xaml</DependentUpon>
     </Compile>
     <Compile Include="IpClass.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="IpSetMain.xaml.cs">
+      <DependentUpon>IpSetMain.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

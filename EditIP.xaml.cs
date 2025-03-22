@@ -193,8 +193,7 @@ namespace ipset
         {
             if (string.IsNullOrWhiteSpace(ip))
                 return false;
-            IPAddress address;
-            if (!IPAddress.TryParse(ip, out address))
+            if (!IPAddress.TryParse(ip, out IPAddress address))
                 return false;
             if (address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
                 return false;
@@ -206,8 +205,7 @@ namespace ipset
         {
             if (string.IsNullOrWhiteSpace(mask))
                 return false;
-            IPAddress subnet;
-            if (!IPAddress.TryParse(mask, out subnet))
+            if (!IPAddress.TryParse(mask, out IPAddress subnet))
                 return false;
             if (subnet.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
                 return false;
