@@ -7,7 +7,11 @@
         Title="IP修改器" Height="465" Width="820
         " WindowStartupLocation="CenterScreen">
     <Grid>
-        <Label x:Name="Label_CardName" Content="选中网卡名字" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="9" Margin="5,0,0,0" />
+        <Label x:Name="Label_CardName" Content="选中网卡名字" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="10" Margin="5,0,0,0" FontWeight="Bold" >
+            <Label.Background>
+                <ImageBrush/>
+            </Label.Background>
+        </Label>
         <Label x:Name="Lable_NetCard" Content="选择网卡：" HorizontalAlignment="Left" Margin="5,20,0,0" VerticalAlignment="Top" Width="70" Height="25" />
         <ComboBox x:Name="ComboBox_NetCard" HorizontalAlignment="Left" Margin="69,20,0,0" VerticalAlignment="Top" Width="106" Height="19" IsEditable="True" SelectionChanged="ComboBox_NetCard_SelectionChanged" />
         <Button x:Name="Button_TurnCardOnOff" Content="停用" HorizontalAlignment="Left" Margin="180,20,0,0" VerticalAlignment="Top" Width="61" Click="Button_TurnCardOnOff_Click" />
@@ -24,9 +28,9 @@
         <Button x:Name="Botton_Cping" Content="Cping工具" HorizontalAlignment="Left" Margin="312,80,0,0" VerticalAlignment="Top" Width="61" Click="Botton_Cping_Click" Background="#FF11F309" />
         <Label x:Name="Lable_MTU" Content="当前MTU:" HorizontalAlignment="Left" Margin="5,76,0,0" VerticalAlignment="Top" Width="70" Height="25" />
         <CheckBox x:Name="CheckBox_DHCP" Content="自动获取IP地址：" HorizontalAlignment="Left" Margin="10,123,0,0" VerticalAlignment="Top" Checked="CheckBox_DHCP_Checked" Unchecked="CheckBox_DHCP_Unchecked" />
-        <Button x:Name="Botton_PreventIP" Content="前一次IP" HorizontalAlignment="Left" Margin="145,120,0,0" VerticalAlignment="Top" Width="61" Click="Botton_PreventIP_Click" />
-        <Button x:Name="Botton_NextIP" Content="后一次IP" HorizontalAlignment="Left" Margin="220,120,0,0" VerticalAlignment="Top" Width="61" Click="Botton_NextIP_Click" />
-        <Button x:Name="Botton_SaveFangAn" Content="保存配置方案" HorizontalAlignment="Left" Margin="295,120,0,0" VerticalAlignment="Top" Width="78" Click="Botton_SaveFangAn_Click" />
+        <Button x:Name="Botton_PreventIP" Content="前一次IP" HorizontalAlignment="Left" Margin="140,120,0,0" VerticalAlignment="Top" Width="61" Click="Botton_PreventIP_Click" />
+        <Button x:Name="Botton_NextIP" Content="后一次IP" HorizontalAlignment="Left" Margin="210,120,0,0" VerticalAlignment="Top" Width="61" Click="Botton_NextIP_Click" />
+        <Button x:Name="Botton_SaveFangAn" Content="保存和覆盖方案" HorizontalAlignment="Left" Margin="282,120,0,0" VerticalAlignment="Top" Width="91" Click="Botton_SaveFangAn_Click" />
         <TextBox x:Name="TextBox_IP1" HorizontalAlignment="Left" Margin="69,150,0,0" TextWrapping="Wrap" Text="111.111.111.111" VerticalAlignment="Top" Width="106" Height="19" />
         <Label x:Name="Lable_IP1" Content="IP地址1:" HorizontalAlignment="Left" Margin="5,147,0,0" VerticalAlignment="Top" Width="70" Height="25" />
         <TextBox x:Name="TextBox_Mask1" HorizontalAlignment="Left" Margin="69,175,0,0" TextWrapping="Wrap" Text="255.255.255.0" VerticalAlignment="Top" Width="106" Height="19" />
@@ -55,7 +59,7 @@
         </ListBox>
         <Button x:Name="Botton_RefreshConfig" Content="刷新网卡信息" HorizontalAlignment="Left" Margin="10,395,0,0" VerticalAlignment="Top" Width="76" Click="Botton_RefreshConfig_Click" />
         <Button x:Name="Botton_ApplyConfig" Content="应用当前配置" HorizontalAlignment="Left" Margin="99,395,0,0" Width="76"  Height="19" VerticalAlignment="Top" Click="Botton_ApplyConfig_Click" />
-        <Label x:Name="Label_Message" Content="调试信息:" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="9" Margin="398,0,0,0" />
+        <Label x:Name="Label_Message" Content="调试信息:" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="10" Margin="398,0,0,0" FontWeight="Bold" />
 
         <TextBox x:Name="TextBox_Message"
                  IsReadOnly="True"

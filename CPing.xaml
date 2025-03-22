@@ -1,24 +1,24 @@
 ﻿<Window x:Class="myipset.CPing"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="群Ping工具" Height="450" Width="800" WindowStartupLocation="CenterScreen">
+        Title="群Ping工具" Height="401" Width="762" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="300" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="247" />
         </Grid.ColumnDefinitions>
 
         <!-- 顶部：输入IP和开始按钮,色标和保存IP和MAC配置 -->
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" Margin="5">
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" Margin="5,5,5,5">
             <Button x:Name="ButtonStartPing" Content="开始群ping" Width="100" Click="ButtonStartPing_Click" RenderTransformOrigin="44.176,113.031" Margin="5,2,5,2" />
             <StackPanel Orientation="Horizontal" Margin="5">
                 <TextBlock Text="" Width="10" />
             </StackPanel>
-            <TextBox x:Name="TextBoxCping" Width="110" Height="20" />
+            <TextBox x:Name="TextBoxCping" Width="120" Height="20" FontSize="14" />
 
             <StackPanel Orientation="Horizontal" Margin="5">
                 <TextBlock Text="" Width="10" />
@@ -45,7 +45,7 @@
         </StackPanel>
 
         <!-- 左侧：16×16 IP 网格 -->
-        <ItemsControl x:Name="ItemsControlCping" Grid.Row="1" Grid.Column="0" Margin="5">
+        <ItemsControl x:Name="ItemsControlCping" Grid.Row="1" Grid.Column="0" Margin="10,5,10,5">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Rows="16" Columns="16" />
@@ -61,7 +61,7 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <DataGrid x:Name="DataGridMAC" CanUserAddRows="False" AutoGenerateColumns="False" Margin="10,5,5,5" Grid.Row="1" Grid.Column="1">
+        <DataGrid x:Name="DataGridMAC" CanUserAddRows="False" AutoGenerateColumns="False" Margin="0,5,5,5" Grid.Row="1" Grid.Column="1">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="IP" Binding="{Binding FullIP}" Width="*" />
                 <DataGridTextColumn Header="MAC" Binding="{Binding MAC}" Width="*" />

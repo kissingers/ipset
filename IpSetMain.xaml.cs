@@ -636,7 +636,7 @@ namespace ipset
         //读取配置文件 config.cfg 然后生成一个配置方案的下拉集合
         public void ReadConfig()
         {
-            //ListBox_FangAn.Items.Clear();
+            IpClass.netConfigDict = new Dictionary<string, NetConfig>();
 
             if (!File.Exists("config.cfg"))
             {
@@ -654,7 +654,7 @@ namespace ipset
 
             //每个方案用|隔开，每个方案的具体地IP用#隔开，用分隔符读取多个方案
             string[] configArray = IpClass.configfile.Split('|');
-            IpClass.netConfigDict = new Dictionary<string, NetConfig>();
+
             foreach (string config in configArray)
             {
                 if (config.Length > 0)
@@ -676,13 +676,18 @@ namespace ipset
 
         public void SaveConfig()
         {
+            if (!File.Exists("config.cfg"))
+            {
+                File.Create("config.cfg").Close();    //创建文件. 后改为如果没有不创建,以没有方案文件运行
+            }
+
             FileStream fs = new FileStream("config.cfg", FileMode.Truncate, FileAccess.Write);
             StreamWriter sw = new StreamWriter(fs);
 
             foreach (NetConfig config in IpClass.netConfigDict.Values)
             {
                 string saveString = config.Writebackfile();
-                AddMessage("写入\t\t" + saveString);
+                AddMessage("写入  " + saveString);
                 sw.WriteLine(saveString);
             }
             sw.Close();
@@ -1256,26 +1261,6 @@ namespace ipset
                 SaveConfig();
                 ReadConfig();
             }
-
-            /*
-                        NetConfig config = IpClass.netConfigDict[name];
-                        Form2 f2 = new Form2(config)
-                        { Owner = this };
-
-                        //增加可编辑的下拉列表
-                        foreach (NetConfig cfg in IpClass.netConfigDict.Values)
-                        { f2.fangAnName.Items.Add(cfg.Name); }
-
-                        f2.fangAnName.Text = FangAn.Text;
-                        f2.textBoxip1.Text = textBoxip1.Text;
-                        f2.textBoxmask1.Text = textBoxmask1.Text;
-                        f2.textBoxgw.Text = textBoxgw.Text;
-                        f2.textBoxdns1.Text = textBoxdns1.Text;
-                        f2.textBoxdns2.Text = textBoxdns2.Text;
-                        f2.textBoxip2.Text = textBoxip2.Text;
-                        f2.textBoxmask2.Text = textBoxmask2.Text;
-                        f2.Show();
-            */
         }
 
         private void FanAn_MenuItem_Refer_Click(object sender, EventArgs e)
