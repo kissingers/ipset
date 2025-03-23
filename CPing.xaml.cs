@@ -166,7 +166,7 @@ namespace myipset
                         if (pr.Color == Brushes.LightGray)
                         {
                             pr.Color = Brushes.Fuchsia;
-                            pr.ToolTip = "禁ping，可获取到MAC";
+                            pr.ToolTip = "ping不通但可获取MAC地址";
                         }
                     }
                 }

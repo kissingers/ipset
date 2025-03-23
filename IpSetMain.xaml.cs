@@ -14,7 +14,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
+using System.Xml.Linq;
 
 namespace ipset
 {
@@ -661,14 +663,14 @@ namespace ipset
                 {
                     NetConfig nc = new NetConfig(config);
                     IpClass.netConfigDict.Add(nc.Name, nc);
-                    AddMessage($"========== 方案:{nc.Name} ==========");
-                    AddMessage($"IP地址:     {(nc.IP1 == "" ? "无" : nc.IP1)}");
-                    AddMessage($"IP掩码:     {(nc.Mask1 != "" ? nc.Mask1 : "无")}");
-                    AddMessage($"IP网关:     {(nc.Gateway != "" ? nc.Gateway : "无")}");
-                    AddMessage($"首选DNS: {(nc.DNS1 != "" ? nc.DNS1 : "无")}");
-                    AddMessage($"备选DNS: {(nc.DNS2 != "" ? nc.DNS2 : "无")}");
-                    AddMessage($"IP地址2:    {(nc.IP2 != "" ? nc.IP2 : "无")}");
-                    AddMessage($"IP掩码2:    {(nc.Mask2 != "" ? nc.Mask2 : "无")}");
+                    AddMessage($"========== 方案：{nc.Name} ==========");
+                    AddMessage($"IP1 地址\t\t{(nc.IP1 == "" ? "无" : nc.IP1)}");
+                    AddMessage($"IP1 掩码\t\t{(nc.Mask1 != "" ? nc.Mask1 : "无")}");
+                    AddMessage($"网关地址\t{(nc.Gateway != "" ? nc.Gateway : "无")}");
+                    AddMessage($"DNS1地址\t{(nc.DNS1 != "" ? nc.DNS1 : "无")}");
+                    AddMessage($"DNS2地址\t{(nc.DNS2 != "" ? nc.DNS2 : "无")}");
+                    AddMessage($"IP2 地址\t\t{(nc.IP2 != "" ? nc.IP2 : "无")}");
+                    AddMessage($"IP2 掩码\t\t{(nc.Mask2 != "" ? nc.Mask2 : "无")}");
                 }
             }
             ListBox_FangAn.ItemsSource = IpClass.netConfigDict.Keys;
@@ -1182,7 +1184,7 @@ namespace ipset
             {
                 string name = ListBox_FangAn.SelectedItem.ToString();
                 NetConfig config = IpClass.netConfigDict[name];
-                AddMessage("========== 请参考方案:" + name + "的配置 ==========");
+                AddMessage($"========== 方案：{name} ==========");
                 if (!string.IsNullOrEmpty(config.IP1)) AddMessage("IP1 地址\t\t" + config.IP1);
                 if (!string.IsNullOrEmpty(config.Mask1)) AddMessage("IP1 掩码\t\t" + config.Mask1);
                 if (!string.IsNullOrEmpty(config.Gateway)) AddMessage("网关地址\t" + config.Gateway);
@@ -1289,7 +1291,7 @@ namespace ipset
             // 将当前主窗口显示的方案数据封装到NetConfig对象中
             var defaultConfig = new NetConfig(string.Empty)
             {
-                Name = "方案:" + DateTime.Now.ToString(),
+                Name = "时间点:" + DateTime.Now.ToString(),
                 IP1 = TextBox_IP1.Text,
                 Mask1 = TextBox_Mask1.Text,
                 Gateway = TextBox_GateWay.Text,
