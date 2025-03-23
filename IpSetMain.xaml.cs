@@ -1112,7 +1112,7 @@ namespace ipset
             if (IpClass.HistoryRecords.Count > 0)
             {
                 IpClass.HistoryCurrentIndex = IpClass.HistoryRecords.Count - 1; //手动刷新时候更改历史为最新
-                AddMessage("已切最近的历史记录，序号: " + IpClass.HistoryCurrentIndex);
+                AddMessage("历史记录已切到最新，序号: " + IpClass.HistoryCurrentIndex);
             }
         }
 
