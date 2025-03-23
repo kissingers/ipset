@@ -4,6 +4,5 @@
              xmlns:local="clr-namespace:ipset"
              StartupUri="IpSetMain.xaml">
     <Application.Resources>
-         
     </Application.Resources>
 </Application>
