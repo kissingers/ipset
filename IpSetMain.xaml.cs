@@ -812,7 +812,7 @@ namespace ipset
                 random.NextBytes(macBytes);
                 // 将字节数组转换为MAC地址字符串
                 string macAddress = BitConverter.ToString(macBytes).Replace("-", "").ToUpper();
-                //  检查MAC地址是否合法
+                // 检查MAC地址是否合法
                 if (CheckMacAddress(macAddress))
                     return macAddress;
             }
@@ -1386,6 +1386,5 @@ namespace ipset
             // 输出尺寸信息
             AddMessage($"程序宽:{windowWidth}, 高:{windowHeight}; 界面宽:{viewWidth}, 高:{viewtHeight}; 网格宽:{gridWidth}, 高:{gridHeight}");
         }
-
     }
 }

@@ -19,6 +19,8 @@ namespace myipset
     public partial class CPing : Window
     {
         private CancellationTokenSource _cts;
+
+        private double aspectRatio = 16.0 / 8.2; // 设置窗口的宽高比为16:10
         public ObservableCollection<PingResult> PingResults { get; set; }
 
         [DllImport("iphlpapi.dll", ExactSpelling = true)]
@@ -42,7 +44,7 @@ namespace myipset
                     DisplayIP = i.ToString(),
                     FullIP = $"{prefix}.{i}",
                     MAC = "",
-                    Color = Brushes.LightGray,
+                    Color = Brushes.WhiteSmoke,
                     ToolTip = null
                 });
             }
@@ -273,6 +275,13 @@ namespace myipset
                 File.WriteAllText(sfd.FileName, sb.ToString(), Encoding.UTF8);
                 MessageBox.Show("保存成功！");
             }
+        }
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            // 动态调整窗口高度以保持宽高比,故不需要定义窗口的高度,会用界面元素的高度填充
+            double newHeight = e.NewSize.Width / aspectRatio;
+            this.Height = newHeight;
         }
     }
 
