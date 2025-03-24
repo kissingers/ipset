@@ -4,5 +4,11 @@
              xmlns:local="clr-namespace:ipset"
              StartupUri="IpSetMain.xaml">
     <Application.Resources>
-    </Application.Resources>
+		<Style TargetType="TextBox">
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+		</Style>
+		<Style TargetType="ComboBox">
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+		</Style>
+	</Application.Resources>
 </Application>

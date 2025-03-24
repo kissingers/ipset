@@ -4,119 +4,136 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="IP修改器" Height="465" Width="820" WindowStartupLocation="CenterScreen">
-    <Grid>
-        <!-- 定义三列布局 -->
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="380" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+        UseLayoutRounding="True"
+        Title="IP修改器" Width="860"
+         SizeChanged="Window_SizeChanged" WindowStartupLocation="CenterScreen">
+	<Viewbox x:Name="MainViewbox" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+		<!-- 指定 Grid 的设计尺寸 -->
+		<Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+			<!-- 定义二列布局 -->
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="33.37" />
+				<ColumnDefinition Width="406.63"/>
+				<ColumnDefinition Width="420" />
+			</Grid.ColumnDefinitions>
 
-        <!-- 左侧区域 -->
-        <Grid Grid.Column="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="110" />
-                <!-- 左上区域 -->
-                <RowDefinition Height="*" />
-                <!-- 左下区域 -->
-            </Grid.RowDefinitions>
+			<!-- 左侧区域 -->
+			<Grid Grid.Column="0" Grid.ColumnSpan="2">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="125" />
+					<!-- 左上区域 -->
+					<RowDefinition Height="*" />
+					<!-- 左下区域 -->
+				</Grid.RowDefinitions>
 
-            <!-- 左上区域：网卡设置和CPing工具 -->
-            <Grid Grid.Row="0">
-                <Label x:Name="Label_CardName" Content="选中网卡名字" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="10" Margin="5,0,0,0" FontWeight="Bold" UseLayoutRounding="True">
-                    <Label.Background>
-                        <ImageBrush />
-                    </Label.Background>
-                </Label>
-                <Label x:Name="Lable_NetCard" Content="选择网卡：" HorizontalAlignment="Left" Margin="5,20,0,0" VerticalAlignment="Top" Width="70" Height="25" UseLayoutRounding="True" />
-                <ComboBox x:Name="ComboBox_NetCard" HorizontalAlignment="Left" Margin="69,20,0,0" VerticalAlignment="Top" Width="106" Height="19" IsEditable="True" SelectionChanged="ComboBox_NetCard_SelectionChanged" UseLayoutRounding="True" />
-                <Button x:Name="Button_TurnCardOnOff" Content="停用" HorizontalAlignment="Left" Margin="180,20,0,0" VerticalAlignment="Top" Width="61" Click="Button_TurnCardOnOff_Click" UseLayoutRounding="True" />
-                <Button x:Name="Button_ChangeCardName" Content="网卡改名" HorizontalAlignment="Left" Margin="246,20,0,0" VerticalAlignment="Top" Width="61" Click="Button_ChangeCardName_Click" UseLayoutRounding="True" />
-                <Button x:Name="Button_FindRouting" Content="查路由" HorizontalAlignment="Left" Margin="312,20,0,0" VerticalAlignment="Top" Width="61" Click="Button_FindRouting_Click" UseLayoutRounding="True" />
+				<!-- 左上区域：网卡设置和CPing工具 -->
+				<Grid Grid.Row="0">
+					<CheckBox x:Name="CheckBox_VirtualCard" Content="显示虚拟网卡：" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,2,0,0" Height="25" Checked="CheckBox_VirtualCard_Checked" Unchecked="CheckBox_VirtualCard_Unchecked" UseLayoutRounding="True" />
 
-                <Label x:Name="Lable_MAC" Content="当前MAC:" HorizontalAlignment="Left" Margin="5,47,0,0" VerticalAlignment="Top" Width="70" Height="25" UseLayoutRounding="True" />
-                <TextBox x:Name="TextBox_MAC" HorizontalAlignment="Left" Margin="69,50,0,0" TextWrapping="Wrap" Text="FFFFFFFFFFFF" VerticalAlignment="Top" Width="106" Height="19" UseLayoutRounding="True" />
-                <Button x:Name="Botton_RandomMAC" Content="随机MAC" HorizontalAlignment="Left" Margin="180,50,0,0" VerticalAlignment="Top" Width="61" Click="Botton_RandomMAC_Click" UseLayoutRounding="True" />
-                <Button x:Name="Botton_ManualMAC" Content="手动MAC" HorizontalAlignment="Left" Margin="246,50,0,0" VerticalAlignment="Top" Width="61" Click="Botton_ManualMAC_Click" UseLayoutRounding="True" />
-                <Button x:Name="Botton_DefaultMAC" Content="恢复MAC" HorizontalAlignment="Left" Margin="312,50,0,0" VerticalAlignment="Top" Width="61" Click="Botton_DefaultMAC_Click" UseLayoutRounding="True" />
+					<StackPanel Margin="5,20,0,0">
+						<Label x:Name="Lable_NetCard" Content="选择网卡：" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Width="70" Height="25" UseLayoutRounding="True" />
+						<ComboBox x:Name="ComboBox_NetCard" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,-25,0,0" Width="110" Height="25" IsEditable="True" SelectionChanged="ComboBox_NetCard_SelectionChanged" UseLayoutRounding="True" />
+						<Button x:Name="Button_TurnCardOnOff" Content="停用" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="195,-25,0,0" Width="70" Height="25" Click="Button_TurnCardOnOff_Click" UseLayoutRounding="True" />
+						<Button x:Name="Button_ChangeCardName" Content="网卡改名" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="275,-25,0,0" Width="70" Height="25" Click="Button_ChangeCardName_Click" UseLayoutRounding="True" />
+						<Button x:Name="Button_FindRouting" Content="查路由" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="355,-25,0,0" Width="70" Height="25" Click="Button_FindRouting_Click" UseLayoutRounding="True" />
 
-                <Label x:Name="Lable_MTU" Content="当前MTU:" HorizontalAlignment="Left" Margin="5,76,0,0" VerticalAlignment="Top" Width="70" Height="25" UseLayoutRounding="True" />
-                <TextBox x:Name="TextBox_MTU" HorizontalAlignment="Left" Margin="69,80,0,0" TextWrapping="Wrap" Text="1500" VerticalAlignment="Top" Width="106" Height="19" UseLayoutRounding="True" />
-                <Button x:Name="Botton_ManualMTU" Content="手动MTU" HorizontalAlignment="Left" Margin="180,80,0,0" VerticalAlignment="Top" Width="61" Click="Botton_ManualMTU_Click" UseLayoutRounding="True" />
-                <Button x:Name="Botton_DefaultMTU" Content="默认MTU" HorizontalAlignment="Left" Margin="246,80,0,0" VerticalAlignment="Top" Width="61" Click="Botton_DefaultMTU_Click" UseLayoutRounding="True" />
-                <Button x:Name="Botton_Cping" Content="Cping工具" HorizontalAlignment="Left" Margin="312,80,0,0" VerticalAlignment="Top" Width="61" Click="Botton_Cping_Click" Background="#FF11F309" UseLayoutRounding="True" />
-            </Grid>
+						<Label x:Name="Lable_MAC" Content="当前MAC:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,7,0,0" Width="70" Height="25" UseLayoutRounding="True" />
+						<TextBox x:Name="TextBox_MAC" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,-25,0,0" TextWrapping="Wrap" Text="FFFFFFFFFFFF" Width="110" Height="25" UseLayoutRounding="True" />
+						<Button x:Name="Botton_RandomMAC" Content="随机MAC" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="195,-25,0,0" Width="70" Height="25" Click="Botton_RandomMAC_Click" UseLayoutRounding="True" />
+						<Button x:Name="Botton_ManualMAC" Content="手动MAC" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="275,-25,0,0" Width="70" Height="25" Click="Botton_ManualMAC_Click" UseLayoutRounding="True" />
+						<Button x:Name="Botton_DefaultMAC" Content="恢复MAC" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="355,-25,0,0"  Width="70" Height="25" Click="Botton_DefaultMAC_Click" UseLayoutRounding="True" />
 
-            <!-- 左下区域：IP配置和方案列表 -->
-            <Grid Grid.Row="1">
-                <CheckBox x:Name="CheckBox_DHCP" Content="自动获取IP地址：" HorizontalAlignment="Left" Margin="10,13,0,0" VerticalAlignment="Top" Checked="CheckBox_DHCP_Checked" Unchecked="CheckBox_DHCP_Unchecked" UseLayoutRounding="True" />
-                <Button x:Name="Botton_PreventIP" Content="前一次IP" HorizontalAlignment="Left" Margin="140,10,0,0" VerticalAlignment="Top" Width="61" Click="Botton_PreventIP_Click" UseLayoutRounding="True" />
-                <Button x:Name="Botton_NextIP" Content="后一次IP" HorizontalAlignment="Left" Margin="210,10,0,0" VerticalAlignment="Top" Width="61" Click="Botton_NextIP_Click" UseLayoutRounding="True" />
-                <Button x:Name="Botton_SaveFangAn" Content="保存和覆盖方案" HorizontalAlignment="Left" Margin="282,10,0,0" VerticalAlignment="Top" Width="91" Click="Botton_SaveFangAn_Click" UseLayoutRounding="True" />
+						<Label x:Name="Lable_MTU" Content="当前MTU:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,7,0,0" Width="70" Height="25" UseLayoutRounding="True" />
+						<TextBox x:Name="TextBox_MTU" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,-25,0,0" TextWrapping="Wrap" Text="1500" Width="110" Height="25" UseLayoutRounding="True" />
+						<Button x:Name="Botton_ManualMTU" Content="手动MTU" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="195,-25,0,0" Width="70" Height="25" Click="Botton_ManualMTU_Click" UseLayoutRounding="True" />
+						<Button x:Name="Botton_DefaultMTU" Content="默认MTU" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="275,-25,0,0" Width="70" Height="25" Click="Botton_DefaultMTU_Click" UseLayoutRounding="True" />
+						<Button x:Name="Botton_Cping" Content="Cping工具" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="355,-25,0,0" Width="70" Height="25" Click="Botton_Cping_Click" Background="#FF11F309" UseLayoutRounding="True" />
+					</StackPanel>
+				</Grid>
 
-                <!-- IP设置组 -->
-                <StackPanel Margin="5,40,0,0">
-                    <Label x:Name="Lable_IP1" Content="IP地址1:" HorizontalAlignment="Left" Width="70" Height="25" UseLayoutRounding="True" />
-                    <TextBox x:Name="TextBox_IP1" HorizontalAlignment="Left" Margin="64,-25,0,0" TextWrapping="Wrap" Text="111.111.111.111" Width="106" Height="19" UseLayoutRounding="True" />
+				<!-- 左中区域：IP配置和方案列表 -->
+				<Grid Grid.Row="1">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="200" />
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
+					<Grid Grid.Column="0">
 
-                    <Label x:Name="Lable_Mask1" Content="IP掩码1:" HorizontalAlignment="Left" Width="70" Height="25" UseLayoutRounding="True" />
-                    <TextBox x:Name="TextBox_Mask1" HorizontalAlignment="Left" Margin="64,-25,0,0" TextWrapping="Wrap" Text="255.255.255.0" Width="106" Height="19" UseLayoutRounding="True" />
+						<!-- IP设置组 -->
+						<StackPanel Margin="5,0,0,0">
+							<CheckBox x:Name="CheckBox_DHCP" Content="自动获取IP地址：" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Height="25" Checked="CheckBox_DHCP_Checked" Unchecked="CheckBox_DHCP_Unchecked" UseLayoutRounding="True" />
 
-                    <Label x:Name="Lable_GateWay" Content="IP网关:" HorizontalAlignment="Left" Width="70" Height="25" UseLayoutRounding="True" />
-                    <TextBox x:Name="TextBox_GateWay" HorizontalAlignment="Left" Margin="64,-25,0,0" TextWrapping="Wrap" Text="111.111.111.254" Width="106" Height="19" UseLayoutRounding="True" />
+							<Label x:Name="Lable_IP1" Content="IP地址1:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,7,0,0" Width="70" Height="25" UseLayoutRounding="True" />
+							<TextBox x:Name="TextBox_IP1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,-25,0,0" TextWrapping="Wrap" Text="111.111.111.111" Width="110" Height="25" UseLayoutRounding="True" />
 
-                    <Label x:Name="Lable_DNS1" Content="首选DNS:" HorizontalAlignment="Left" Width="70" Height="25" UseLayoutRounding="True" />
-                    <TextBox x:Name="TextBox_DNS1" HorizontalAlignment="Left" Margin="64,-25,0,0" TextWrapping="Wrap" Text="114.114.114.114" Width="106" Height="19" UseLayoutRounding="True" />
+							<Label x:Name="Lable_Mask1" Content="IP掩码1:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,7,0,0" Width="70" Height="25" UseLayoutRounding="True" />
+							<TextBox x:Name="TextBox_Mask1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,-25,0,0" TextWrapping="Wrap" Text="255.255.255.0" Width="110" Height="25" UseLayoutRounding="True" />
 
-                    <Label x:Name="Lable_DNS2" Content="备用DNS:" HorizontalAlignment="Left" Width="70" Height="25" UseLayoutRounding="True" />
-                    <TextBox x:Name="TextBox_DNS2" HorizontalAlignment="Left" Margin="64,-25,0,0" TextWrapping="Wrap" Text="119.29.29.29" Width="106" Height="19" UseLayoutRounding="True" />
-                </StackPanel>
+							<Label x:Name="Lable_GateWay" Content="IP网关:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,7,0,0" Width="70" Height="25" UseLayoutRounding="True" />
+							<TextBox x:Name="TextBox_GateWay" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,-25,0,0" TextWrapping="Wrap" Text="111.111.111.254" Width="110" Height="25" UseLayoutRounding="True" />
 
-                <!-- IP2设置组 -->
-                <StackPanel Margin="5,193,0,0">
-                    <CheckBox x:Name="CheckBox_Enable2IP" Content="启用第二个IP:" HorizontalAlignment="Left" Checked="CheckBox_Enable2IP_Checked" Unchecked="CheckBox_Enable2IP_Unchecked" UseLayoutRounding="True" />
+							<Label x:Name="Lable_DNS1" Content="首选DNS:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,7,0,0" Width="70" Height="25" UseLayoutRounding="True" />
+							<TextBox x:Name="TextBox_DNS1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,-25,0,0" TextWrapping="Wrap" Text="114.114.114.114" Width="110" Height="25" UseLayoutRounding="True" />
 
-                    <Label x:Name="Lable_IP2" Content="IP地址2:" HorizontalAlignment="Left" Width="70" Height="25" UseLayoutRounding="True" />
-                    <TextBox x:Name="TextBox_IP2" HorizontalAlignment="Left" Margin="64,-25,0,0" TextWrapping="Wrap" Text="222.222.222.222" Width="106" Height="19" UseLayoutRounding="True" />
+							<Label x:Name="Lable_DNS2" Content="备用DNS:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,7,0,0" Width="70" Height="25" UseLayoutRounding="True" />
+							<TextBox x:Name="TextBox_DNS2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,-25,0,0" TextWrapping="Wrap" Text="119.29.29.29" Width="110" Height="25" UseLayoutRounding="True" />
+						</StackPanel>
 
-                    <Label x:Name="Lable_Mask2" Content="IP掩码2:" HorizontalAlignment="Left" Width="70" Height="25" UseLayoutRounding="True" />
-                    <TextBox x:Name="TextBox_Mask2" HorizontalAlignment="Left" Margin="64,-25,0,0" TextWrapping="Wrap" Text="255.255.255.0" Width="106" Height="19" UseLayoutRounding="True" />
-                </StackPanel>
+						<!-- IP2设置组 -->
+						<StackPanel Margin="5,210,0,0">
+							<CheckBox x:Name="CheckBox_Enable2IP" Content="启用第二个IP:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Height="25" Checked="CheckBox_Enable2IP_Checked" Unchecked="CheckBox_Enable2IP_Unchecked" UseLayoutRounding="True" />
 
-                <!-- 底部按钮 -->
-                <StackPanel Margin="10,269,0,0">
-                    <Button x:Name="Botton_RefreshConfig" Content="刷新网卡信息" HorizontalAlignment="Left" Width="76" Click="Botton_RefreshConfig_Click" Height="20" UseLayoutRounding="True" />
-                    <Button x:Name="Botton_ApplyConfig" Content="应用当前配置" HorizontalAlignment="Left" Width="76" Margin="90,-20,0,0" Click="Botton_ApplyConfig_Click" RenderTransformOrigin="0.525,-0.21" Height="20" UseLayoutRounding="True" />
-                </StackPanel>
+							<Label x:Name="Lable_IP2" Content="IP地址2:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,7,0,0"  Width="70" Height="25" UseLayoutRounding="True" />
+							<TextBox x:Name="TextBox_IP2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,-25,0,0" TextWrapping="Wrap" Text="222.222.222.222" Width="110" Height="25" UseLayoutRounding="True" />
 
-                <!-- 方案列表 -->
-                <ListBox x:Name="ListBox_FangAn" Margin="194,40,10,10" SelectionChanged="ListBox_FangAn_SelectionChanged" UseLayoutRounding="True">
-                    <ListBox.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="应用" Click="FanAn_MenuItem_Apply_Click" UseLayoutRounding="True" />
-                            <MenuItem Header="编辑" Click="FanAn_MenuItem_Edit_Click" UseLayoutRounding="True" />
-                            <MenuItem Header="参考" Click="FanAn_MenuItem_Refer_Click" UseLayoutRounding="True" />
-                            <MenuItem Header="新建" Click="FanAn_MenuItem_New_Click" UseLayoutRounding="True" />
-                            <MenuItem Header="删除" Click="FanAn_MenuItem_Delete_Click" UseLayoutRounding="True" />
-                        </ContextMenu>
-                    </ListBox.ContextMenu>
-                    <ListBox.ItemContainerStyle>
-                        <Style TargetType="ListBoxItem">
-                            <Setter Property="ToolTip" Value="双击应用方案,右键更多管理功能" />
-                            <EventSetter Event="MouseDoubleClick" Handler="FanAn_MenuItem_Apply_Click" />
-                        </Style>
-                    </ListBox.ItemContainerStyle>
-                </ListBox>
-            </Grid>
-        </Grid>
+							<Label x:Name="Lable_Mask2" Content="IP掩码2:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,7,0,0"  Width="70" Height="25" UseLayoutRounding="True" />
+							<TextBox x:Name="TextBox_Mask2" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,-25,0,0" TextWrapping="Wrap" Text="255.255.255.0" Width="110" Height="25" UseLayoutRounding="True" />
+						</StackPanel>
 
-        <!-- 右侧区域：调试信息 -->
-        <Grid Grid.Column="1">
-            <Label x:Name="Label_Message" Content="调试信息:" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="10" Margin="4,0,0,0" FontWeight="Bold" UseLayoutRounding="True" />
-            <TextBox x:Name="TextBox_Message"
-                     IsReadOnly="True"
-                     VerticalScrollBarVisibility="Auto"
-                     Margin="0,20,10,10" UseLayoutRounding="True" />
-        </Grid>
-    </Grid>
+						<!-- 底部按钮 -->
+						<StackPanel Margin="5,320,0,0">
+							<Button x:Name="Botton_RefreshConfig" Content="刷新网卡信息" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0"  Width="80" Click="Botton_RefreshConfig_Click" Height="25" UseLayoutRounding="True" />
+							<Button x:Name="Botton_ApplyConfig" Content="应用当前配置" HorizontalAlignment="Left" VerticalAlignment="Top"  Margin="100,-25,0,0" Width="80" Click="Botton_ApplyConfig_Click"  Height="25" UseLayoutRounding="True" />
+						</StackPanel>
+					</Grid>
+
+					<Grid Grid.Column="1">
+						<StackPanel Margin="0,0,0,0">
+							<Button x:Name="Botton_PreventIP" Content="前一次IP" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0"  Width="60" Click="Botton_PreventIP_Click" Height="25" UseLayoutRounding="True" />
+							<Button x:Name="Botton_NextIP" Content="后一次IP" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,-25,0,0"  Width="60" Click="Botton_NextIP_Click" Height="25" UseLayoutRounding="True" />
+							<Button x:Name="Botton_SaveFangAn" Content="保存和覆盖方案" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="140,-25,0,0" Width="90" Click="Botton_SaveFangAn_Click" Height="25" UseLayoutRounding="True" />
+						</StackPanel>
+
+						<!-- 方案列表 -->
+						<ListBox x:Name="ListBox_FangAn" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,32,0,2" Width="230" Height="356" SelectionChanged="ListBox_FangAn_SelectionChanged"  UseLayoutRounding="True">
+							<ListBox.ContextMenu>
+								<ContextMenu>
+									<MenuItem Header="应用" Click="FanAn_MenuItem_Apply_Click" UseLayoutRounding="True" />
+									<MenuItem Header="编辑" Click="FanAn_MenuItem_Edit_Click" UseLayoutRounding="True" />
+									<MenuItem Header="参考" Click="FanAn_MenuItem_Refer_Click" UseLayoutRounding="True" />
+									<MenuItem Header="新建" Click="FanAn_MenuItem_New_Click" UseLayoutRounding="True" />
+									<MenuItem Header="删除" Click="FanAn_MenuItem_Delete_Click" UseLayoutRounding="True" />
+								</ContextMenu>
+							</ListBox.ContextMenu>
+							<ListBox.ItemContainerStyle>
+								<Style TargetType="ListBoxItem">
+									<Setter Property="ToolTip" Value="双击应用方案,右键更多管理功能" />
+									<EventSetter Event="MouseDoubleClick" Handler="FanAn_MenuItem_Apply_Click" />
+								</Style>
+							</ListBox.ItemContainerStyle>
+						</ListBox>
+					</Grid>
+				</Grid>
+			</Grid>
+
+			<!-- 右侧区域：调试信息 -->
+			<Grid Grid.Column="2">
+				<Label x:Name="Label_Message" Content="调试信息:" HorizontalAlignment="Left" VerticalAlignment="Top" Height="25" UseLayoutRounding="True" Margin="0,-3,0,0" />
+
+				<TextBox x:Name="TextBox_Message"
+                         IsReadOnly="True"
+                         VerticalScrollBarVisibility="Auto"  HorizontalAlignment="Left" VerticalAlignment="Top" UseLayoutRounding="True" Width="420" Height="493" Margin="0,20,0,2"  />
+			</Grid>
+		</Grid>
+	</Viewbox>
 </Window>

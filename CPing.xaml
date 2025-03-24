@@ -3,70 +3,72 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="群Ping工具" Height="401" Width="762" WindowStartupLocation="CenterScreen"
         UseLayoutRounding="True">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition Width="247" />
-        </Grid.ColumnDefinitions>
+    <Viewbox Stretch="Uniform">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="247" />
+            </Grid.ColumnDefinitions>
 
-        <!-- 顶部：输入IP和开始按钮,色标和保存IP和MAC配置 -->
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" Margin="5,5,5,5" UseLayoutRounding="True">
-            <Button x:Name="ButtonStartPing" Content="开始群ping" Width="100" Click="ButtonStartPing_Click" RenderTransformOrigin="44.176,113.031" Margin="5,2,5,2" UseLayoutRounding="True" />
-            <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
-                <TextBlock Text="" Width="10" UseLayoutRounding="True" />
-            </StackPanel>
-            <TextBox x:Name="TextBoxCping" Width="120" Height="20" FontSize="14" UseLayoutRounding="True" />
+            <!-- 顶部：输入IP和开始按钮,色标和保存IP和MAC配置 -->
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.ColumnSpan="2" Margin="5,5,5,5" UseLayoutRounding="True">
+                <Button x:Name="ButtonStartPing" Content="开始群ping" Width="100" Click="ButtonStartPing_Click" RenderTransformOrigin="44.176,113.031" Margin="5,2,5,2" UseLayoutRounding="True" />
+                <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
+                    <TextBlock Text="" Width="10" UseLayoutRounding="True"/>
+                </StackPanel>
+                <TextBox x:Name="TextBoxCping" Width="120" Height="20" FontSize="14" UseLayoutRounding="True" />
 
-            <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
-                <TextBlock Text="" Width="10" UseLayoutRounding="True" />
+                <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
+                    <TextBlock Text="" Width="10" UseLayoutRounding="True"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
+                    <TextBlock Text="&lt;10ms" Background="Lime" Width="50" TextAlignment="Center" UseLayoutRounding="True" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
+                    <TextBlock Text="&lt;100ms" Background="Yellow" Width="50" TextAlignment="Center" UseLayoutRounding="True" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
+                    <TextBlock Text="&lt;1秒" Background="Orange" Width="50" TextAlignment="Center" UseLayoutRounding="True" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
+                    <TextBlock Text="&gt;1秒" Background="OrangeRed" Width="50" TextAlignment="Center" UseLayoutRounding="True" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
+                    <TextBlock Text=" 禁ping" Background="Fuchsia" Width="50" TextAlignment="Center" UseLayoutRounding="True" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
+                    <TextBlock Text=""  Width="20" UseLayoutRounding="True"/>
+                </StackPanel>
+                <Button x:Name="ButtonSaveMac" Content="保存IP/MAC表" Width="122" Click="ButtonSaveMac_Click" UseLayoutRounding="True" />
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
-                <TextBlock Text="&lt;10ms" Background="Lime" Width="50" TextAlignment="Center" UseLayoutRounding="True" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
-                <TextBlock Text="&lt;100ms" Background="Yellow" Width="50" TextAlignment="Center" UseLayoutRounding="True" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
-                <TextBlock Text="&lt;1秒" Background="Orange" Width="50" TextAlignment="Center" UseLayoutRounding="True" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
-                <TextBlock Text="&gt;1秒" Background="OrangeRed" Width="50" TextAlignment="Center" UseLayoutRounding="True" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
-                <TextBlock Text=" 禁ping" Background="Fuchsia" Width="50" TextAlignment="Center" UseLayoutRounding="True" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="5" UseLayoutRounding="True">
-                <TextBlock Text=""  Width="20" UseLayoutRounding="True" />
-            </StackPanel>
-            <Button x:Name="ButtonSaveMac" Content="保存IP/MAC表" Width="122" Click="ButtonSaveMac_Click" UseLayoutRounding="True" />
-        </StackPanel>
 
-        <!-- 左侧：16×16 IP 网格 -->
-        <ItemsControl x:Name="ItemsControlCping" Grid.Row="1" Grid.Column="0" Margin="10,5,10,5" UseLayoutRounding="True">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <UniformGrid Rows="16" Columns="16" UseLayoutRounding="True" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Border BorderBrush="Black" BorderThickness="0.5" Margin="1"
-                            Background="{Binding Color}" ToolTip="{Binding ToolTip}" UseLayoutRounding="True">
-                        <TextBlock Text="{Binding DisplayIP}" HorizontalAlignment="Center" VerticalAlignment="Center" UseLayoutRounding="True" />
-                    </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+            <!-- 左侧：16×16 IP 网格 -->
+            <ItemsControl x:Name="ItemsControlCping" Grid.Row="1" Grid.Column="0" Margin="10,5,10,5" UseLayoutRounding="True">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="16" Columns="16" UseLayoutRounding="True" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="Black" BorderThickness="0.5" Margin="1"
+                                Background="{Binding Color}" ToolTip="{Binding ToolTip}" UseLayoutRounding="True">
+                            <TextBlock Text="{Binding DisplayIP}" HorizontalAlignment="Center" VerticalAlignment="Center" UseLayoutRounding="True" />
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
-        <DataGrid x:Name="DataGridMAC" CanUserAddRows="False" AutoGenerateColumns="False" Margin="0,5,5,5" Grid.Row="1" Grid.Column="1" UseLayoutRounding="True">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="IP" Binding="{Binding FullIP}" Width="*" />
-                <DataGridTextColumn Header="MAC" Binding="{Binding MAC}" Width="*" />
-            </DataGrid.Columns>
-        </DataGrid>
-    </Grid>
+            <DataGrid x:Name="DataGridMAC" CanUserAddRows="False" AutoGenerateColumns="False" Margin="0,5,5,5" Grid.Row="1" Grid.Column="1" UseLayoutRounding="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="IP" Binding="{Binding FullIP}" Width="*" />
+                    <DataGridTextColumn Header="MAC" Binding="{Binding MAC}" Width="*" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+    </Viewbox>
 </Window>

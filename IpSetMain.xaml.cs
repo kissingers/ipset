@@ -26,6 +26,7 @@ namespace ipset
     {
         private readonly ObservableCollection<string> traceMessage = new ObservableCollection<string>();
         private readonly List<string> netWorkList = new List<string>();
+        private double aspectRatio = 16.0 / 10.0; // 设置窗口的宽高比为16:10
 
         public MainWindow()
         {
@@ -65,6 +66,11 @@ namespace ipset
             ComboBox_NetCard.ItemsSource = "";
             netWorkList.Clear();
             string qry = "SELECT * FROM MSFT_NetAdapter WHERE Virtual=False";
+            if (IpClass.ShowVirtualCard)
+            {
+                qry = "SELECT * FROM MSFT_NetAdapter";
+                AddMessage("不可更改IP的网卡不会列出，可参考程序启动时候调试信息栏的适配器信息");
+            }
             ManagementScope scope = new ManagementScope(@"\\.\ROOT\StandardCimv2");
             ObjectQuery query = new ObjectQuery(qry);
             ManagementObjectSearcher mos = new ManagementObjectSearcher(scope, query);
@@ -163,9 +169,7 @@ namespace ipset
                 if (adapter.Name != ComboBox_NetCard.SelectedValue.ToString())
                     continue;        //处理下拉列表,和前面读取的表项比较如果不匹配就继续匹配
 
-                Label_CardName.Content = adapter.Description;
                 IpClass.NiceEnable = true;    //匹配成功说明网卡起来了,读取网卡信息
-
                 IPInterfaceProperties ip = adapter.GetIPProperties();
                 UnicastIPAddressInformationCollection netIpAdds = ip.UnicastAddresses;
                 GatewayIPAddressInformationCollection gatewayIpAdds = ip.GatewayAddresses;
@@ -173,6 +177,8 @@ namespace ipset
 
                 IpClass.NicName = adapter.Name;                 //如果匹配先保存网卡名字和描述到ip临时表
                 IpClass.NicDescript = adapter.Description;
+                this.Title = "修改器  " + IpClass.NicDescript;
+
                 TextBox_MAC.Text = adapter.GetPhysicalAddress().ToString();
                 TextBox_MTU.Text = ip.GetIPv4Properties().Mtu.ToString();
                 IpClass.UseDhcp = ip.GetIPv4Properties().IsDhcpEnabled;
@@ -865,12 +871,16 @@ namespace ipset
             //用此方法获取注册表内物理网卡的ID
             string DeviceId = "";
             string netState = "SELECT * From Win32_NetworkAdapter  where PhysicalAdapter=1";
+            if (IpClass.ShowVirtualCard)
+            {
+                netState = "SELECT * From Win32_NetworkAdapter";
+            }
             string cardName = ComboBox_NetCard.SelectedValue.ToString();
             ManagementObjectSearcher searcher = new ManagementObjectSearcher(netState);
             ManagementObjectCollection collection = searcher.Get();
             foreach (ManagementObject manage in collection.Cast<ManagementObject>())
             {
-                if (manage["NetConnectionID"].ToString() == cardName)  //直接用列表名匹配
+                if (manage["NetConnectionID"]?.ToString() == cardName)  //直接用列表名匹配
                 {
                     DeviceId = int.Parse(manage["DeviceId"].ToString()).ToString("D4");
                     //MessageBox.Show(DeviceId);
@@ -1079,6 +1089,18 @@ namespace ipset
             cpingWindow.ShowDialog();
         }
 
+        private void CheckBox_VirtualCard_Checked(object sender, RoutedEventArgs e)
+        {
+            IpClass.ShowVirtualCard = true;
+            ListNetWork();
+        }
+
+        private void CheckBox_VirtualCard_Unchecked(object sender, RoutedEventArgs e)
+        {
+            IpClass.ShowVirtualCard = false;
+            ListNetWork();
+        }
+
         private void CheckBox_DHCP_Checked(object sender, RoutedEventArgs e)
         {
             IpClass.UseDhcp = true;
@@ -1178,53 +1200,65 @@ namespace ipset
 
         private void ListBox_FangAn_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ListBox_FangAn.SelectedItem != null)
-            {
-                string name = ListBox_FangAn.SelectedItem.ToString();
-                NetConfig config = IpClass.netConfigDict[name];
-                AddMessage($"========== 方案：{name} ==========");
-                if (!string.IsNullOrEmpty(config.IP1)) AddMessage("IP1 地址\t\t" + config.IP1);
-                if (!string.IsNullOrEmpty(config.Mask1)) AddMessage("IP1 掩码\t\t" + config.Mask1);
-                if (!string.IsNullOrEmpty(config.Gateway)) AddMessage("网关地址\t" + config.Gateway);
-                if (!string.IsNullOrEmpty(config.DNS1)) AddMessage("DNS1地址\t" + config.DNS1);
-                if (!string.IsNullOrEmpty(config.DNS2)) AddMessage("DNS2地址\t" + config.DNS2);
-                if (!string.IsNullOrEmpty(config.IP2)) AddMessage("IP2 地址\t\t" + config.IP2);
-                if (!string.IsNullOrEmpty(config.Mask2)) AddMessage("IP2 掩码\t\t" + config.Mask2);
-            }
+            if (ListBox_FangAn.SelectedItem == null)
+                return;
+            string name = ListBox_FangAn.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(name))
+                return;
+            if (!IpClass.netConfigDict.ContainsKey(name))
+                return;
+
+            NetConfig config = IpClass.netConfigDict[name];
+            AddMessage($"========== 方案：{name} ==========");
+            if (!string.IsNullOrEmpty(config.IP1)) AddMessage("IP1 地址\t\t" + config.IP1);
+            if (!string.IsNullOrEmpty(config.Mask1)) AddMessage("IP1 掩码\t\t" + config.Mask1);
+            if (!string.IsNullOrEmpty(config.Gateway)) AddMessage("网关地址\t" + config.Gateway);
+            if (!string.IsNullOrEmpty(config.DNS1)) AddMessage("DNS1地址\t" + config.DNS1);
+            if (!string.IsNullOrEmpty(config.DNS2)) AddMessage("DNS2地址\t" + config.DNS2);
+            if (!string.IsNullOrEmpty(config.IP2)) AddMessage("IP2 地址\t\t" + config.IP2);
+            if (!string.IsNullOrEmpty(config.Mask2)) AddMessage("IP2 掩码\t\t" + config.Mask2);
         }
 
         private void Botton_SaveFangAn_Click(object sender, RoutedEventArgs e)
         {
-            if (ListBox_FangAn.SelectedItem != null)
+            if (ListBox_FangAn.SelectedItem == null)
+                return;
+            string name = ListBox_FangAn.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(name))
+                return;
+            if (!IpClass.netConfigDict.ContainsKey(name))
+                return;
+
+            MessageBoxResult AF = MessageBox.Show("确定用当前界面的IP覆盖选中的配置方案?\n\n你可以鼠标右键方案栏新建一个全新方案", "已有方案覆盖确认", MessageBoxButton.OKCancel, MessageBoxImage.Information);
+            if (AF == MessageBoxResult.OK)
             {
-                string name = ListBox_FangAn.SelectedItem.ToString();
-                MessageBoxResult AF = MessageBox.Show("确定用当前界面的IP覆盖选中的配置方案?\n\n你可以鼠标右键方案栏新建一个全新方案", "已有方案覆盖确认", MessageBoxButton.OKCancel, MessageBoxImage.Information);
-                if (AF == MessageBoxResult.OK)
-                {
-                    NetConfig config = IpClass.netConfigDict[name];
-                    config.IP1 = TextBox_IP1.Text;
-                    config.Mask1 = TextBox_Mask1.Text;
-                    config.Gateway = TextBox_GateWay.Text;
-                    config.DNS1 = TextBox_DNS1.Text;
-                    config.DNS2 = TextBox_DNS2.Text;
-                    config.IP2 = TextBox_IP2.Text;
-                    config.Mask2 = TextBox_Mask2.Text;
-                }
-                else
-                {
-                    ListBox_FangAn.UnselectAll();
-                    return;
-                }
+                NetConfig config = IpClass.netConfigDict[name];
+                config.IP1 = TextBox_IP1.Text;
+                config.Mask1 = TextBox_Mask1.Text;
+                config.Gateway = TextBox_GateWay.Text;
+                config.DNS1 = TextBox_DNS1.Text;
+                config.DNS2 = TextBox_DNS2.Text;
+                config.IP2 = TextBox_IP2.Text;
+                config.Mask2 = TextBox_Mask2.Text;
+                SaveConfig();
             }
-            SaveConfig();
+            else
+            {
+                ListBox_FangAn.UnselectAll();
+                return;
+            }
         }
 
         private void FanAn_MenuItem_Apply_Click(object sender, EventArgs e)
         {
             if (ListBox_FangAn.SelectedItem == null)
                 return;
+            string name = ListBox_FangAn.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(name))
+                return;
+            if (!IpClass.netConfigDict.ContainsKey(name))
+                return;
 
-            string name = ListBox_FangAn.SelectedItem.ToString();
             NetConfig config = IpClass.netConfigDict[name];
             AddMessage("已选择" + config.Name + "\r\n");
             CheckBox_DHCP.IsChecked = false;
@@ -1247,8 +1281,9 @@ namespace ipset
         {
             if (ListBox_FangAn.SelectedItem == null)
                 return;
-
-            string name = ListBox_FangAn.SelectedItem.ToString();
+            string name = ListBox_FangAn.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(name))
+                return;
             if (!IpClass.netConfigDict.ContainsKey(name))
                 return;
 
@@ -1267,7 +1302,12 @@ namespace ipset
         {
             if (ListBox_FangAn.SelectedItem == null)
                 return;
-            string name = ListBox_FangAn.SelectedItem.ToString();
+            string name = ListBox_FangAn.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(name))
+                return;
+            if (!IpClass.netConfigDict.ContainsKey(name))
+                return;
+
             NetConfig config = IpClass.netConfigDict[name];
             CheckBox_DHCP.IsChecked = false;
             TextBox_IP1.Text = config.IP1;
@@ -1314,14 +1354,38 @@ namespace ipset
         {
             if (ListBox_FangAn.SelectedItem == null)
                 return;
-            string name = ListBox_FangAn.SelectedItem.ToString();
-            if (!string.IsNullOrEmpty(name))
-            {
-                //FangAn.Items.Remove(name);
-                IpClass.netConfigDict.Remove(name);
-                SaveConfig();
-                ReadConfig();
-            }
+            string name = ListBox_FangAn.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(name))
+                return;
+            if (!IpClass.netConfigDict.ContainsKey(name))
+                return;
+
+            IpClass.netConfigDict.Remove(name);
+            SaveConfig();
+            ReadConfig();
         }
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            // 动态调整窗口高度以保持宽高比,故不需要定义窗口的高度,会用界面元素的高度填充
+            double newHeight = e.NewSize.Width / aspectRatio;
+            this.Height = newHeight;
+
+            // 获取窗口的外部尺寸
+            double windowWidth = this.Width;
+            double windowHeight = this.Height;
+
+            // 获取窗口的客户区尺寸
+            double viewWidth = MainViewbox.ActualWidth;
+            double viewtHeight = MainViewbox.ActualHeight;
+
+            // 获取窗口的客户区尺寸
+            double gridWidth = MainGrid.ActualWidth;
+            double gridHeight = MainGrid.ActualHeight;
+
+            // 输出尺寸信息
+            AddMessage($"程序宽:{windowWidth}, 高:{windowHeight}; 界面宽:{viewWidth}, 高:{viewtHeight}; 网格宽:{gridWidth}, 高:{gridHeight}");
+        }
+
     }
 }

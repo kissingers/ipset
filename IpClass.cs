@@ -9,6 +9,7 @@ namespace myipset
         public static List<string[]> HistoryRecords = new List<string[]>();
         public static int HistoryCurrentIndex = 0;
 
+        public static bool ShowVirtualCard = false;
         public static bool UseDhcp = false;
         public static bool Use2Ip = false;
         public static bool lastUseDhcp = true;
