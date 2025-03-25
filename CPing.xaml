@@ -112,7 +112,6 @@
                     UseLayoutRounding="True" />
             </StackPanel>
 
-
             <!--  下侧左侧区域  -->
 
             <!--  左侧：16×16 IP 网格  -->
@@ -182,16 +181,5 @@
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
-
-
-
-
-
-
-
-
-
-
-
     </Viewbox>
 </Window>

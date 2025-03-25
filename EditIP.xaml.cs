@@ -241,12 +241,12 @@ namespace ipset
             }
             return new IPAddress(ip).ToString();
         }
+
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             // 动态调整窗口高度以保持宽高比,故不需要定义窗口的高度,会用界面元素的高度填充
             double newHeight = e.NewSize.Width / aspectRatio;
             this.Height = newHeight;
         }
-
     }
 }
