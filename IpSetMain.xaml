@@ -71,7 +71,7 @@
                             VerticalAlignment="Top"
                             IsEditable="True"
                             SelectionChanged="ComboBox_NetCard_SelectionChanged"
-                            UseLayoutRounding="True" />
+                            UseLayoutRounding="True" FontWeight="Bold" />
                         <Button
                             x:Name="Button_TurnCardOnOff"
                             Width="70"
@@ -252,7 +252,7 @@
                                 VerticalAlignment="Top"
                                 Text="111.111.111.111"
                                 TextWrapping="Wrap"
-                                UseLayoutRounding="True" />
+                                UseLayoutRounding="True" FontWeight="Bold" />
 
                             <Label
                                 x:Name="Lable_Mask1"
@@ -272,7 +272,7 @@
                                 VerticalAlignment="Top"
                                 Text="255.255.255.0"
                                 TextWrapping="Wrap"
-                                UseLayoutRounding="True" />
+                                UseLayoutRounding="True" FontWeight="Bold" />
 
                             <Label
                                 x:Name="Lable_GateWay"
@@ -292,7 +292,7 @@
                                 VerticalAlignment="Top"
                                 Text="111.111.111.254"
                                 TextWrapping="Wrap"
-                                UseLayoutRounding="True" />
+                                UseLayoutRounding="True" FontWeight="Bold" />
 
                             <Label
                                 x:Name="Lable_DNS1"
@@ -312,7 +312,7 @@
                                 VerticalAlignment="Top"
                                 Text="114.114.114.114"
                                 TextWrapping="Wrap"
-                                UseLayoutRounding="True" />
+                                UseLayoutRounding="True" FontWeight="Bold" />
 
                             <Label
                                 x:Name="Lable_DNS2"
@@ -332,7 +332,7 @@
                                 VerticalAlignment="Top"
                                 Text="119.29.29.29"
                                 TextWrapping="Wrap"
-                                UseLayoutRounding="True" />
+                                UseLayoutRounding="True" FontWeight="Bold" />
                         </StackPanel>
 
                         <!--  IP2设置组  -->
@@ -366,7 +366,7 @@
                                 VerticalAlignment="Top"
                                 Text="222.222.222.222"
                                 TextWrapping="Wrap"
-                                UseLayoutRounding="True" />
+                                UseLayoutRounding="True" FontWeight="Bold" />
 
                             <Label
                                 x:Name="Lable_Mask2"
@@ -386,7 +386,7 @@
                                 VerticalAlignment="Top"
                                 Text="255.255.255.0"
                                 TextWrapping="Wrap"
-                                UseLayoutRounding="True" />
+                                UseLayoutRounding="True" FontWeight="Bold" />
                         </StackPanel>
 
                         <!--  底部按钮  -->

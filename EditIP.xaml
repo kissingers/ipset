@@ -2,7 +2,7 @@
     x:Class="ipset.EditSchemeWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="编辑IP方案"
+    Title="编辑方案"
     Width="300"
     SizeChanged="Window_SizeChanged"
     UseLayoutRounding="True"
