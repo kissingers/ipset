@@ -8,6 +8,7 @@ namespace ipset
     public partial class EditSchemeWindow : Window
     {
         public NetConfig Scheme { get; private set; }
+        private double aspectRatio = 7.0 / 9; // 设置窗口的宽高比为16:18
 
         public EditSchemeWindow(NetConfig scheme = null)
         {
@@ -240,5 +241,12 @@ namespace ipset
             }
             return new IPAddress(ip).ToString();
         }
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            // 动态调整窗口高度以保持宽高比,故不需要定义窗口的高度,会用界面元素的高度填充
+            double newHeight = e.NewSize.Width / aspectRatio;
+            this.Height = newHeight;
+        }
+
     }
 }
