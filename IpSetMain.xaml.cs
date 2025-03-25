@@ -26,7 +26,7 @@ namespace ipset
     {
         private readonly ObservableCollection<string> traceMessage = new ObservableCollection<string>();
         private readonly List<string> netWorkList = new List<string>();
-        private double aspectRatio = 16.0 / 10.0; // 设置窗口的宽高比为16:10
+        private readonly double aspectRatio = 16.0 / 10.0; // 设置窗口的宽高比为16:10
 
         public MainWindow()
         {

@@ -20,7 +20,8 @@ namespace myipset
     {
         private CancellationTokenSource _cts;
 
-        private double aspectRatio = 16.0 / 9; // 设置窗口的宽高比为16:10
+        private readonly double aspectRatio = 16.0 / 9; // 设置窗口的宽高比为16:10
+        private readonly Brush BackColor = Brushes.WhiteSmoke;  //IP单元格背景色
         public ObservableCollection<PingResult> PingResults { get; set; }
 
         [DllImport("iphlpapi.dll", ExactSpelling = true)]
@@ -44,7 +45,7 @@ namespace myipset
                     DisplayIP = i.ToString(),
                     FullIP = $"{prefix}.{i}",
                     MAC = "",
-                    Color = Brushes.WhiteSmoke,
+                    Color = BackColor,
                     ToolTip = null
                 });
             }
@@ -165,7 +166,7 @@ namespace myipset
                         var pr = PingResults[lastOctet];
                         pr.MAC = GetMacAddress(pr.FullIP);
                         // 若该单元格仍是默认背景（未在线响应），则更新为紫色，并补充 MAC 信息
-                        if (pr.Color == Brushes.LightGray)
+                        if (pr.Color == BackColor)
                         {
                             pr.Color = Brushes.Fuchsia;
                             pr.ToolTip = "ping不通但可获取MAC地址";

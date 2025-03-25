@@ -8,7 +8,7 @@ namespace ipset
     public partial class EditSchemeWindow : Window
     {
         public NetConfig Scheme { get; private set; }
-        private double aspectRatio = 7.0 / 9; // 设置窗口的宽高比为16:18
+        private readonly double aspectRatio = 7.0 / 9; // 设置窗口的宽高比为16:18
 
         public EditSchemeWindow(NetConfig scheme = null)
         {
