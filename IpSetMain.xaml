@@ -22,8 +22,7 @@
             VerticalAlignment="Stretch">
             <!--  定义二列布局  -->
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="33.37" />
-                <ColumnDefinition Width="406.63" />
+                <ColumnDefinition Width="440" />
                 <ColumnDefinition Width="420" />
             </Grid.ColumnDefinitions>
 
@@ -37,7 +36,11 @@
                 </Grid.RowDefinitions>
 
                 <!--  左上区域：网卡设置和CPing工具  -->
-                <Grid Grid.Row="0">
+                <Grid
+                    Grid.Row="0"
+                    Grid.RowSpan="2"
+                    Margin="0,0,0,390"
+                    HorizontalAlignment="Left">
                     <CheckBox
                         x:Name="CheckBox_VirtualCard"
                         Height="25"
@@ -204,15 +207,22 @@
                 </Grid>
 
                 <!--  左中区域：IP配置和方案列表  -->
-                <Grid Grid.Row="1">
+                <Grid
+                    Grid.Row="1"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="200" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid Grid.Column="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="170*" />
+                            <ColumnDefinition Width="31*" />
+                        </Grid.ColumnDefinitions>
 
                         <!--  IP设置组  -->
-                        <StackPanel Margin="5,0,0,0">
+                        <StackPanel Grid.ColumnSpan="2" Margin="5,0,0,0">
                             <CheckBox
                                 x:Name="CheckBox_DHCP"
                                 Height="25"
@@ -326,7 +336,7 @@
                         </StackPanel>
 
                         <!--  IP2设置组  -->
-                        <StackPanel Margin="5,210,0,0">
+                        <StackPanel Grid.ColumnSpan="2" Margin="5,210,0,0">
                             <CheckBox
                                 x:Name="CheckBox_Enable2IP"
                                 Height="25"
@@ -380,7 +390,7 @@
                         </StackPanel>
 
                         <!--  底部按钮  -->
-                        <StackPanel Margin="5,320,0,0">
+                        <StackPanel Grid.ColumnSpan="2" Margin="5,320,0,0">
                             <Button
                                 x:Name="Botton_RefreshConfig"
                                 Width="80"
@@ -405,7 +415,11 @@
                     </Grid>
 
                     <Grid Grid.Column="1">
-                        <StackPanel Margin="0,0,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="174*"/>
+                            <RowDefinition Height="215*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.RowSpan="2">
                             <Button
                                 x:Name="Botton_PreventIP"
                                 Width="60"
@@ -443,11 +457,11 @@
                             x:Name="ListBox_FangAn"
                             Width="230"
                             Height="356"
-                            Margin="0,32,0,2"
-                            HorizontalAlignment="Left"
+                            Margin="0,32,0,0"
+                            HorizontalAlignment="Center"
                             VerticalAlignment="Top"
                             SelectionChanged="ListBox_FangAn_SelectionChanged"
-                            UseLayoutRounding="True">
+                            UseLayoutRounding="True" Grid.RowSpan="2">
                             <ListBox.ContextMenu>
                                 <ContextMenu>
                                     <MenuItem

@@ -20,7 +20,7 @@ namespace myipset
     {
         private CancellationTokenSource _cts;
 
-        private double aspectRatio = 16.0 / 8.2; // 设置窗口的宽高比为16:10
+        private double aspectRatio = 16.0 / 9; // 设置窗口的宽高比为16:10
         public ObservableCollection<PingResult> PingResults { get; set; }
 
         [DllImport("iphlpapi.dll", ExactSpelling = true)]
