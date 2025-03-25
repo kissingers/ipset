@@ -69,9 +69,11 @@
                             Margin="70,-25,0,0"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top"
+                            FontSize="13"
+                            FontWeight="Bold"
                             IsEditable="True"
                             SelectionChanged="ComboBox_NetCard_SelectionChanged"
-                            UseLayoutRounding="True" FontWeight="Bold" />
+                            UseLayoutRounding="True" />
                         <Button
                             x:Name="Button_TurnCardOnOff"
                             Width="70"
@@ -119,6 +121,7 @@
                             Margin="70,-25,0,0"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top"
+                            FontSize="13"
                             Text="FFFFFFFFFFFF"
                             TextWrapping="Wrap"
                             UseLayoutRounding="True" />
@@ -169,6 +172,7 @@
                             Margin="70,-25,0,0"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top"
+                            FontSize="13"
                             Text="1500"
                             TextWrapping="Wrap"
                             UseLayoutRounding="True" />
@@ -250,9 +254,10 @@
                                 Margin="70,-25,0,0"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Top"
+                                FontSize="13"
                                 Text="111.111.111.111"
                                 TextWrapping="Wrap"
-                                UseLayoutRounding="True" FontWeight="Bold" />
+                                UseLayoutRounding="True" />
 
                             <Label
                                 x:Name="Lable_Mask1"
@@ -270,9 +275,10 @@
                                 Margin="70,-25,0,0"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Top"
+                                FontSize="13"
                                 Text="255.255.255.0"
                                 TextWrapping="Wrap"
-                                UseLayoutRounding="True" FontWeight="Bold" />
+                                UseLayoutRounding="True" />
 
                             <Label
                                 x:Name="Lable_GateWay"
@@ -290,9 +296,10 @@
                                 Margin="70,-25,0,0"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Top"
+                                FontSize="13"
                                 Text="111.111.111.254"
                                 TextWrapping="Wrap"
-                                UseLayoutRounding="True" FontWeight="Bold" />
+                                UseLayoutRounding="True" />
 
                             <Label
                                 x:Name="Lable_DNS1"
@@ -310,9 +317,10 @@
                                 Margin="70,-25,0,0"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Top"
+                                FontSize="13"
                                 Text="114.114.114.114"
                                 TextWrapping="Wrap"
-                                UseLayoutRounding="True" FontWeight="Bold" />
+                                UseLayoutRounding="True" />
 
                             <Label
                                 x:Name="Lable_DNS2"
@@ -330,9 +338,10 @@
                                 Margin="70,-25,0,0"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Top"
+                                FontSize="13"
                                 Text="119.29.29.29"
                                 TextWrapping="Wrap"
-                                UseLayoutRounding="True" FontWeight="Bold" />
+                                UseLayoutRounding="True" />
                         </StackPanel>
 
                         <!--  IP2设置组  -->
@@ -364,9 +373,10 @@
                                 Margin="70,-25,0,0"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Top"
+                                FontSize="13"
                                 Text="222.222.222.222"
                                 TextWrapping="Wrap"
-                                UseLayoutRounding="True" FontWeight="Bold" />
+                                UseLayoutRounding="True" />
 
                             <Label
                                 x:Name="Lable_Mask2"
@@ -384,9 +394,10 @@
                                 Margin="70,-25,0,0"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Top"
+                                FontSize="13"
                                 Text="255.255.255.0"
                                 TextWrapping="Wrap"
-                                UseLayoutRounding="True" FontWeight="Bold" />
+                                UseLayoutRounding="True" />
                         </StackPanel>
 
                         <!--  底部按钮  -->
