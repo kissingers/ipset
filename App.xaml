@@ -10,5 +10,42 @@
         <Style TargetType="ComboBox">
             <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
+        <Style TargetType="Button">
+            <!--  基础设置  -->
+            <Setter Property="Background" Value="#FFDDDDDD" />
+            <Setter Property="BorderBrush" Value="#FFCCCCCC" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="5,2" />
+            <Setter Property="Margin" Value="5" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <!--  悬停触发器  -->
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFC0C0C0" />
+                    <!--  稍深的灰色作为悬停背景  -->
+                    <Setter Property="BorderBrush" Value="#FF0000FF" />
+                    <!--  悬停时边框线加深  -->
+                </Trigger>
+                <!--  可选：按下时的效果  -->
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#FFB0FFB0" />
+                    <Setter Property="BorderBrush" Value="#FFFF00FF" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Application.Resources>
 </Application>
