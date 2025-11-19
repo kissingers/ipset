@@ -34,6 +34,34 @@ namespace ipset
             ReadConfig();
             ShowAdapterInfo();
             ListNetWork();
+            IpClass.PShellOk = IsNetworkPowerShellSupported();
+        }
+ 
+        public static bool IsNetworkPowerShellSupported()
+        {
+            try
+            {
+                // 执行 PowerShell 命令：检查是否能加载 NetTCPIP 模块并调用 Get-NetIPInterface
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "powershell.exe",
+                    Arguments = "-Command \"Get-Module -ListAvailable -Name NetTCPIP | Out-Null; if (Get-Command Set-NetIPInterface -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
+
+                using (var process = Process.Start(startInfo))
+                {
+                    process.WaitForExit();
+                    return process.ExitCode == 0;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public void AddMessage(string message)

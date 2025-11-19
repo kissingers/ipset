@@ -17,6 +17,7 @@ namespace myipset
         public static bool IpCheckOk = true;
         public static bool NiceEnable = true;
         public static bool NicConnect = true;
+        public static bool PShellOk = false;
 
         public static string NicName = "";
         public static string NicDefaultName = "";
