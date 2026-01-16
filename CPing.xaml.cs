@@ -140,18 +140,14 @@ namespace myipset
             ButtonStartPing.Content = "正在群ping...";
             ButtonStartPing.IsEnabled = false;
 
-            // 群ping共256个地址，分批执行（4批，每批64个）
-            for (int batch = 0; batch < 4; batch++)
+            var pingTasks = new List<Task>();
+            for (int i = 0; i < 256; i++)
             {
-                List<Task> tasks = new List<Task>();
-                for (int i = 0; i < 64; i++)
-                {
-                    int ipSuffix = batch * 64 + i;
-                    string targetIp = $"{prefix}.{ipSuffix}";
-                    tasks.Add(PingAndUpdateUI(targetIp, ipSuffix, _cts.Token));
-                }
-                try { await Task.WhenAll(tasks); } catch (OperationCanceledException) { return; }
+                string targetIp = $"{prefix}.{i}";
+                pingTasks.Add(PingAndUpdateUI(targetIp, i, _cts.Token));
+                await Task.Delay(25, _cts.Token);
             }
+            try { await Task.WhenAll(pingTasks); } catch (OperationCanceledException) { return; }
 
             // 任务全部完成后，根据是否同网段分别处理
             if (sameNetwork)
@@ -191,7 +187,7 @@ namespace myipset
 
             PingReply reply = null;
             Ping pingSender = new Ping();
-            try { reply = await pingSender.SendPingAsync(targetIp, 1500); } catch { }
+            try { reply = await pingSender.SendPingAsync(targetIp, 2000); } catch { }
 
             if (reply != null && reply.Status == IPStatus.Success)
             {
@@ -206,8 +202,8 @@ namespace myipset
                 else
                     cellColor = Colors.OrangeRed;
 
-                PingResults[ipSuffix].Color = new SolidColorBrush(cellColor);
-                PingResults[ipSuffix].ToolTip = $"{delay} ms";
+                    PingResults[ipSuffix].Color = new SolidColorBrush(cellColor);
+                    PingResults[ipSuffix].ToolTip = $"{delay} ms";
             }
         }
 
