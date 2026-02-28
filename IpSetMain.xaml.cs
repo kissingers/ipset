@@ -246,7 +246,12 @@ namespace ipset
                 //处理网关
                 foreach (GatewayIPAddressInformation gateway in gatewayIpAdds)
                 {
-                    TextBox_GateWay.Text = gateway.Address.ToString();
+                    // 仅使用 IPv4 网关地址，忽略 IPv6（本程序仅处理 IPv4）
+                    if (gateway.Address != null && gateway.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                    {
+                        TextBox_GateWay.Text = gateway.Address.ToString();
+                        break; // 使用第一个 IPv4 网关即可
+                    }
                 }
 
                 //处理DNS服务器地址,最多2组
@@ -807,7 +812,12 @@ namespace ipset
 
                 foreach (GatewayIPAddressInformation gateway in gatewayIpAdds)
                 {
-                    IpClass.lastArray[3] = gateway.Address.ToString();
+                    // 仅保存 IPv4 网关，忽略 IPv6 或空条目
+                    if (gateway.Address != null && gateway.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                    {
+                        IpClass.lastArray[3] = gateway.Address.ToString();
+                        break; // 记录第一个 IPv4 网关
+                    }
                 }
 
                 int index2 = 0;
