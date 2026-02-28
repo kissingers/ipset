@@ -33,19 +33,28 @@
                 UseLayoutRounding="True">
                 <Button
                     x:Name="ButtonStartPing"
-                    Width="80"
+                    Width="70"
                     Height="20"
                     Margin="0,0,0,0"
                     HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
                     Click="ButtonStartPing_Click"
                     Content="开始群ping"
                     UseLayoutRounding="True" />
                 <TextBox
                     x:Name="TextBoxCping"
-                    Width="130"
+                    Width="110"
                     Height="20"
-                    Margin="90,-20,0,0"
+                    Margin="75,-20,0,0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    FontSize="13"
+                    UseLayoutRounding="True" />
+
+                <TextBox
+                    x:Name="TextBoxDelay"
+                    Width="35"
+                    Height="20"
+                    Margin="190,-20,0,0"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     FontSize="13"

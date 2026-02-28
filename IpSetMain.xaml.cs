@@ -36,7 +36,7 @@ namespace ipset
             ListNetWork();
             IpClass.PShellOk = IsNetworkPowerShellSupported();
         }
- 
+
         public static bool IsNetworkPowerShellSupported()
         {
             try
