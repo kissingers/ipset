@@ -285,9 +285,40 @@ namespace ipset
                 AddMessage("netsh interface ip set dns name=\"" + IpClass.NicName + "\" source=dhcp");
                 RunNetshCommand("interface ip set address name=\"" + IpClass.NicName + "\" source=dhcp");
                 RunNetshCommand("interface ip set dns name=\"" + IpClass.NicName + "\" source=dhcp");
-                AddMessage("-------------修改网卡动态获取地址结束---------------\r\n");
+                // 等待 DHCP 分配一个有效的 IPv4（非 APIPA 169.254.x.x），最多等待 15 秒
+                try
+                {
+                    var sw = System.Diagnostics.Stopwatch.StartNew();
+                    bool found = false;
+                    while (sw.ElapsedMilliseconds < 15000)
+                    {
+                        NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+                        foreach (NetworkInterface adapter in adapters)
+                        {
+                            if (adapter.Name != IpClass.NicName) continue;
+                            var ipprops = adapter.GetIPProperties();
+                            foreach (var uni in ipprops.UnicastAddresses)
+                            {
+                                if (uni.Address != null && uni.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                                {
+                                    var b = uni.Address.GetAddressBytes();
+                                    if (b.Length >= 2 && b[0] == 169 && b[1] == 254)
+                                        continue; // APIPA, 忽略
+                                    found = true; break;
+                                }
+                            }
+                            if (found) break;
+                        }
+                        if (found) break;
+                        System.Threading.Thread.Sleep(1000);
+                    }
+                    sw.Stop();
+                }
+                catch { }
                 SelectNetCard();
                 ChangeUI();
+                AddMessage($"IP={TextBox_IP1.Text ?? ""} 掩码={TextBox_Mask1.Text ?? ""} 网关={TextBox_GateWay.Text ?? ""}");
+                AddMessage("-------------网卡自动获取IP地址结束---------------");
                 return true;
             }
 
@@ -301,7 +332,7 @@ namespace ipset
             //不是动态则检查IP是否合法，不合法直接退出
             if (!Checkinput())
             {
-                AddMessage("-----------需要修改的IP不符合规范,更改IP不成功-----------\r\n");
+                AddMessage("-----------需要修改的IP不符合规范,更改IP不成功-----------");
                 return false;
             }
 
@@ -369,7 +400,7 @@ namespace ipset
                     RunNetshCommand(DNS2Command);
                 }
             }
-            AddMessage("---------------修改网卡结束-----------------\r\n");
+            AddMessage("---------------修改网卡结束-----------------");
             SelectNetCard();
             ChangeUI();
             return true;
