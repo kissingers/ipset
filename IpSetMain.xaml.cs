@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Management;
@@ -14,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 
 namespace ipset
@@ -88,91 +90,163 @@ namespace ipset
             TextBox_Mask2.IsEnabled = EditEnable;
         }
 
-        // 网卡列表,这个方法只显示真的的物理网卡列表
+        private static bool IsPhysicalPnpDevice(string pnpId)
+        {
+            // 真实硬件通常以这些总线类型开头,不包含蓝牙 "BTH\\"
+            return pnpId.StartsWith("PCI\\", StringComparison.OrdinalIgnoreCase) ||
+                   pnpId.StartsWith("USB\\", StringComparison.OrdinalIgnoreCase) ||
+                   pnpId.StartsWith("ACPI\\", StringComparison.OrdinalIgnoreCase) ||
+                   pnpId.StartsWith("IDE\\", StringComparison.OrdinalIgnoreCase) ||
+                   pnpId.StartsWith("SCSI\\", StringComparison.OrdinalIgnoreCase);
+        }
+
+        // 网卡列表
         public void ListNetWork()
         {
             ComboBox_NetCard.ItemsSource = "";
             netWorkList.Clear();
-            string qry = "SELECT * FROM MSFT_NetAdapter WHERE Virtual=False";
-            if (IpClass.ShowVirtualCard)
+            var allNics = new HashSet<string>();
+            try
             {
-                qry = "SELECT * FROM MSFT_NetAdapter";
-                AddMessage("不可更改IP的网卡不会列出，可参考程序启动时候调试信息栏的适配器信息");
-            }
-            ManagementScope scope = new ManagementScope(@"\\.\ROOT\StandardCimv2");
-            ObjectQuery query = new ObjectQuery(qry);
-            ManagementObjectSearcher mos = new ManagementObjectSearcher(scope, query);
-            ManagementObjectCollection moc = mos.Get();
+                using (var collection = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapter"))
+                {
+                    foreach (ManagementObject mo in collection.Get())
+                    {
+                        string nicName = mo["NetConnectionID"]?.ToString();
+                        if (string.IsNullOrEmpty(nicName))
+                            continue;
 
-            foreach (ManagementObject mo in moc.Cast<ManagementObject>())
-            {
-                netWorkList.Add(mo["Name"]?.ToString());
-                if (IpClass.NicDefaultName == "")
-                    IpClass.NicDefaultName = mo["Name"]?.ToString();    //确保有一个网卡选中
 
-                uint ConnectState = Convert.ToUInt32(mo["MediaConnectState"] ?? 0);
-                if (ConnectState == 1)    //网卡连接状态0未知  1已连接 2断开
-                    IpClass.NicDefaultName = mo["Name"]?.ToString();    //选中最后一个点亮的网卡
+                        // 如果是物理网卡，或者勾选了显示虚拟网卡，则加到列表内
+                        if (IsPhysicalPnpDevice(mo["PNPDeviceID"]?.ToString() ?? "") || IpClass.ShowVirtualCard)
+                        {
+                            netWorkList.Add(nicName);
+                            //如果网卡是连接的，则选中第一个连接的网卡
+                            if (IpClass.NicDefaultName == "")
+                            {
+                                if (mo["NetConnectionStatus"]?.ToString() == "2")
+                                    IpClass.NicDefaultName = nicName;
+                            }
+                        }
+                    }
+                }
             }
+            catch { }
+
             ComboBox_NetCard.ItemsSource = netWorkList;
-            ComboBox_NetCard.SelectedItem = IpClass.NicDefaultName;    //默认选取预定义网卡,最后点亮的物理网卡匹配优先,如果都没有,就默认第一个.
+            if (netWorkList != null)
+            {
+                if (IpClass.NicDefaultName == "")
+                    ComboBox_NetCard.SelectedIndex = 0;
+                else
+                    ComboBox_NetCard.SelectedItem = IpClass.NicDefaultName;
+            }
         }
 
         //显示网卡信息
         public void ShowAdapterInfo()
         {
-            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
-            AddMessage("主机名字：" + Dns.GetHostName());
-            AddMessage("网卡个数：" + adapters.Length);
-            int index = 0;
-            foreach (NetworkInterface adapter in adapters)
+            AddMessage("主机名字：" + System.Net.Dns.GetHostName());
+            try
             {
-                //显示网络适配器描述信息、名称、类型、速度、MAC 地址
-                index++;
-                AddMessage("--------------------第" + index + "个适配器信息--------------------");
-                AddMessage("网卡名字：" + adapter.Name);
-                AddMessage("网卡描述：" + adapter.Description);
-                AddMessage("网卡标识：" + adapter.Id);
-                AddMessage("网卡类型：" + adapter.NetworkInterfaceType);
-                AddMessage("点亮情况：" + adapter.OperationalStatus);
-                AddMessage("网卡地址：" + adapter.GetPhysicalAddress());
-                AddMessage("网卡速度：" + adapter.Speed / 1000 / 1000 + "MB");
+                // 获取网卡IP 和 DNS，Win32_NetworkAdapterConfiguration 包含 IP/DNS，但没有物理连接状态
+                var ipConfigSearcher = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapterConfiguration");
+                var ipConfigList = ipConfigSearcher.Get();
 
-                IPInterfaceProperties ip = adapter.GetIPProperties();
+                // 获取网卡硬件信息 (用于获取 MAC、状态、类型等)
+                var adapterSearcher = new ManagementObjectSearcher("SELECT * FROM Win32_NetworkAdapter");
+                var adapterList = adapterSearcher.Get();
 
-                if (adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+                int index = 0;
+                foreach (ManagementObject mo in adapterList)
                 {
-                    AddMessage("网卡类型：有线网卡");
-                    AddMessage("自动获取：" + ip.GetIPv4Properties().IsDhcpEnabled);
-                    AddMessage("IPV4MTU：" + ip.GetIPv4Properties().Mtu);
-                    AddMessage("IPV6MTU：" + ip.GetIPv6Properties().Mtu);
-                }
 
-                if (adapter.NetworkInterfaceType == NetworkInterfaceType.Wireless80211)
-                {
-                    AddMessage("网卡类型：无线网卡");
-                    AddMessage("自动获取：" + ip.GetIPv4Properties().IsDhcpEnabled);
-                    AddMessage("IPV4MTU：" + ip.GetIPv4Properties().Mtu);
-                    AddMessage("IPV6MTU：" + ip.GetIPv6Properties().Mtu);
-                }
+                    if (mo["NetConnectionID"] == null)  //只处理带有 NetConnectionID 的网卡
+                        continue;
 
-                UnicastIPAddressInformationCollection netIpAdds = ip.UnicastAddresses;
-                foreach (UnicastIPAddressInformation ipadd in netIpAdds)
-                {
-                    if (ipadd.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                        AddMessage("IPV4地址：" + ipadd.Address);
-                    if (ipadd.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
-                        AddMessage("IPV6地址：" + ipadd.Address);
-                }
+                    index++;
+                    AddMessage($"--------------------第{index}个适配器信息--------------------");
+                    AddMessage("网卡名字：" + mo["NetConnectionID"]?.ToString());  //不用Name,Name和下面Description是一样的
+                    AddMessage("网卡描述：" + mo["Description"]?.ToString());
+                    AddMessage("网卡标识：" + (mo["GUID"]?.ToString() ?? "N/A"));
+                    AddMessage("网卡厂家：" + mo["Manufacturer"]?.ToString() ?? "");
+                    AddMessage("网卡地址：" + (mo["MACAddress"]?.ToString() ?? ""));
+                    if (mo["Speed"] != null)
+                        AddMessage("网卡速度：" + (Convert.ToUInt64(mo["Speed"]) / 1000000) + "MB");
+                    else
+                        AddMessage("网卡速度：N/A");
+                    // 转换 NetConnectionStatus 数字代码为可读文本
+                    string statusText = "未知";
+                    var statusVal = mo["NetConnectionStatus"]?.ToString();
+                    switch (statusVal)
+                    {
+                        case "0": statusText = "断开连接"; break;
+                        case "1": statusText = "连接中"; break;
+                        case "2": statusText = "已连接"; break;
+                        case "3": statusText = "断开连接"; break;
+                        case "4": statusText = "硬件不存在"; break;
+                        case "5": statusText = "硬件禁用"; break;
+                        case "6": statusText = "硬件故障"; break;
+                        case "7": statusText = "媒体断开连接"; break;
+                        case "8": statusText = "进行身份验证"; break;
+                        case "9": statusText = "身份验证成功"; break;
+                        case "10": statusText = "身份验证失败"; break;
+                        case "11": statusText = "地址无效"; break;
+                        case "12": statusText = "所需的凭据"; break;
+                    }
+                    AddMessage("点亮情况：" + statusText);
 
-                IPAddressCollection dnsServers = ip.DnsAddresses;
-                foreach (IPAddress dns in dnsServers)
-                {
-                    if (dns.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                        AddMessage("IPV4域名：" + dns);
-                    if (dns.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
-                        AddMessage("IPV6域名：" + dns);
+                    // IP 和 DNS 信息需要关联 Win32_NetworkAdapterConfiguration 通过 MAC 地址或 InterfaceIndex 来查询结果
+                    string currentMac = mo["MACAddress"]?.ToString();
+                    bool hasIpInfo = false;
+                    if (!string.IsNullOrEmpty(currentMac))
+                    {
+                        foreach (ManagementObject ipMo in ipConfigList)
+                        {
+                            if (ipMo["MACAddress"]?.ToString() == currentMac)
+                            {
+                                hasIpInfo = true;
+                                // 判断是否有 IP (IPEnabled)
+                                if (ipMo["IPEnabled"] != null && (bool)ipMo["IPEnabled"])
+                                {
+                                    // 获取 IP 地址
+                                    string[] ipAddresses = (string[])ipMo["IPAddress"];
+                                    if (ipAddresses != null)
+                                    {
+                                        foreach (string ipStr in ipAddresses)
+                                        {
+                                            // 简单判断 IPv4/IPv6
+                                            if (ipStr.Contains(".")) // 简单的 IPv4 判断
+                                                AddMessage("IPV4地址：" + ipStr);
+                                            else if (ipStr.Contains(":"))
+                                                AddMessage("IPV6地址：" + ipStr);
+                                        }
+                                    }
+
+                                    // 获取 DNS和DHCP信息
+                                    string[] dnsServers = (string[])ipMo["DNSServerSearchOrder"];
+                                    if (dnsServers != null)
+                                    {
+                                        foreach (string dns in dnsServers)
+                                        {
+                                            if (dns.Contains("."))
+                                                AddMessage("IPV4域名：" + dns);
+                                            else if (dns.Contains(":"))
+                                                AddMessage("IPV6域名：" + dns);
+                                        }
+                                    }
+
+                                    if (ipMo["DHCPEnabled"] != null)
+                                        AddMessage("自动获取：" + ipMo["DHCPEnabled"].ToString());
+                                }
+                            }
+                        }
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                AddMessage("获取适配器信息出错：" + ex.Message);
             }
             AddMessage("-------------------适配器信息输出结束---------------------");
         }
