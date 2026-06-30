@@ -18,6 +18,7 @@ namespace myipset
         public static bool NiceEnable = true;
         public static bool NicConnect = true;
         public static bool PShellOk = false;
+        public static bool? PShellChecked = null; // 缓存PowerShell检查结果，避免重复检查
 
         public static string NicName = "";
         public static string NicDefaultName = "";

@@ -34,13 +34,43 @@ namespace ipset
         {
             InitializeComponent();
             ReadConfig();
-            ShowAdapterInfo();
-            ListNetWork();
-            IpClass.PShellOk = IsNetworkPowerShellSupported();
+            // 延迟耗时操作到窗口加载完成后，改善启动速度
+            this.Loaded += MainWindow_Loaded;
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // 在后台线程执行耗时的初始化操作
+            Task.Run(() => InitializeNetworkInfoAsync());
+        }
+
+        private void InitializeNetworkInfoAsync()
+        {
+            try
+            {
+                ShowAdapterInfo();
+                ListNetWork();
+                // 异步检查PowerShell支持，不阻塞主线程
+                Task.Run(() => IsNetworkPowerShellSupportedAsync());
+            }
+            catch (Exception ex)
+            {
+                AddMessage($"初始化网络信息出错: {ex.Message}");
+            }
+        }
+
+        private async void IsNetworkPowerShellSupportedAsync()
+        {
+            bool result = await Task.Run(() => IsNetworkPowerShellSupported());
+            IpClass.PShellOk = result;
         }
 
         public static bool IsNetworkPowerShellSupported()
         {
+            // 如果已经检查过，直接返回缓存结果
+            if (IpClass.PShellChecked.HasValue)
+                return IpClass.PShellChecked.Value;
+
             try
             {
                 // 执行 PowerShell 命令：检查是否能加载 NetTCPIP 模块并调用 Get-NetIPInterface
@@ -57,19 +87,34 @@ namespace ipset
                 using (var process = Process.Start(startInfo))
                 {
                     process.WaitForExit();
-                    return process.ExitCode == 0;
+                    // 缓存检查结果
+                    IpClass.PShellChecked = (process.ExitCode == 0);
+                    return IpClass.PShellChecked.Value;
                 }
             }
             catch
             {
+                IpClass.PShellChecked = false;
                 return false;
             }
         }
 
         public void AddMessage(string message)
         {
-            TextBox_Message.AppendText(message + Environment.NewLine);
-            TextBox_Message.ScrollToEnd();
+            // 如果在非UI线程上调用，需要切回主线程
+            if (!TextBox_Message.Dispatcher.CheckAccess())
+            {
+                TextBox_Message.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    TextBox_Message.AppendText(message + Environment.NewLine);
+                    TextBox_Message.ScrollToEnd();
+                }));
+            }
+            else
+            {
+                TextBox_Message.AppendText(message + Environment.NewLine);
+                TextBox_Message.ScrollToEnd();
+            }
         }
 
         public void SetColor(Color UsedColor, bool EditEnable)
@@ -103,7 +148,6 @@ namespace ipset
         // 网卡列表
         public void ListNetWork()
         {
-            ComboBox_NetCard.ItemsSource = "";
             netWorkList.Clear();
             var allNics = new HashSet<string>();
             try
@@ -133,14 +177,18 @@ namespace ipset
             }
             catch { }
 
-            ComboBox_NetCard.ItemsSource = netWorkList;
-            if (netWorkList != null)
+            // UI更新需要回到主线程
+            ComboBox_NetCard.Dispatcher.BeginInvoke(new Action(() =>
             {
-                if (IpClass.NicDefaultName == "")
-                    ComboBox_NetCard.SelectedIndex = 0;
-                else
-                    ComboBox_NetCard.SelectedItem = IpClass.NicDefaultName;
-            }
+                ComboBox_NetCard.ItemsSource = netWorkList;
+                if (netWorkList != null)
+                {
+                    if (IpClass.NicDefaultName == "")
+                        ComboBox_NetCard.SelectedIndex = 0;
+                    else
+                        ComboBox_NetCard.SelectedItem = IpClass.NicDefaultName;
+                }
+            }));
         }
 
         //显示网卡信息
