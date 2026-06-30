@@ -396,13 +396,6 @@ namespace ipset
                 return true;
             }
 
-            //网卡不是dhcp则检查是否激活,不激活直接退出
-            if (!IpClass.NicConnect)
-            {
-                MessageBox.Show("当前网卡未激活，请激活网卡后再设置静态IP,否则会变成169开头的地址！");
-                return false;
-            }
-
             //不是动态则检查IP是否合法，不合法直接退出
             if (!Checkinput())
             {
@@ -717,19 +710,21 @@ namespace ipset
                 Button_TurnCardOnOff.Background = new SolidColorBrush(Color.FromRgb(128, 0, 0));
             }
 
-            if (!IpClass.NicConnect)          //如果网卡没联网,输入界面变粉色,且不可编辑
-            {
-                SetColor(Color.FromRgb(255, 128, 128), false);
-            }
-            else if (IpClass.UseDhcp)  //如果网卡联网且是DHCP,输入界面变绿色,且不可编辑
+            if (IpClass.UseDhcp)
             {
                 CheckBox_DHCP.IsChecked = true;
-                SetColor(Color.FromRgb(128, 255, 128), false);
+                if (IpClass.NicConnect)    //如果网卡联网且是DHCP,输入界面变绿色,不可编辑
+                    SetColor(Color.FromRgb(128, 255, 128), false);
+                else    // 如果网卡没联网且是DHC,输入界面变粉色,不可编辑
+                    SetColor(Color.FromRgb(255, 128, 128), false);
             }
-            else //如果网卡联网且是静态IP,输入界面变白色,且可编辑
+            else 
             {
                 CheckBox_DHCP.IsChecked = false;
-                SetColor(Color.FromRgb(255, 255, 255), true);
+                if (IpClass.NicConnect)
+                    SetColor(Color.FromRgb(255, 255, 255), true);
+                else
+                    SetColor(Color.FromRgb(255, 128, 128), true);
             }
 
             if (IpClass.Use2Ip)
