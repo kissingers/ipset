@@ -264,7 +264,8 @@ namespace myipset
             try { TextBoxDelay.IsEnabled = false; } catch { }
 
             // 严格控制并发（避免网络栈缓冲）
-            var semaphore = new SemaphoreSlim(256);
+            int maxConcurrency = 64; // 限制并发，避免耗尽系统资源并减少UI压力
+            var semaphore = new SemaphoreSlim(maxConcurrency);
             var pingTasks = new List<Task>();
 
             try
@@ -279,17 +280,20 @@ namespace myipset
                 }
                 catch { }
 
-                //随机ping方式,供参考
-                //var indices = Enumerable.Range(0, 256).OrderBy(x => Guid.NewGuid()).ToList();
-                //foreach (var i in indices)
-
+                // 使用高精度调度：以启动时为基准，确保更精确的间隔
+                var sw = Stopwatch.StartNew();
                 for (int i = 0; i < 256; i++)
                 {
                     if (_cts.Token.IsCancellationRequested) break;
                     string targetIp = $"{prefix}.{i}";
-                    // 精确控制启动间隔
+                    long targetMs = (long)i * interDelay;
+                    long waitMs = targetMs - sw.ElapsedMilliseconds;
+                    if (waitMs > 0)
+                    {
+                        try { await Task.Delay((int)waitMs, _cts.Token); } catch (TaskCanceledException) { break; }
+                    }
+                    // 启动Ping任务（PingAndUpdateUI内部控制并发）
                     pingTasks.Add(PingAndUpdateUI(targetIp, i, sameNetwork, _cts.Token, semaphore));
-                    await Task.Delay(interDelay, _cts.Token);
                 }
                 await Task.WhenAll(pingTasks);
 
@@ -359,8 +363,8 @@ namespace myipset
                 catch (PingException) { /* 静默处理Ping异常 */ }
                 catch (TaskCanceledException) { return; }
 
-                // 安全更新UI（.NET Framework 4.8兼容：同步Invoke）
-                Dispatcher.Invoke(new Action(() =>
+                // 异步更新UI，避免阻塞后台线程
+                Dispatcher.BeginInvoke(new Action(() =>
                 {
                     if (idx >= PingResults.Count) return;
                     var item = PingResults[idx];
