@@ -48,8 +48,8 @@ namespace ipset
         {
             try
             {
-                ShowAdapterInfo();
                 ListNetWork();
+                ShowAdapterInfo();
                 // 异步检查PowerShell支持，不阻塞主线程
                 Task.Run(() => IsNetworkPowerShellSupportedAsync());
             }
